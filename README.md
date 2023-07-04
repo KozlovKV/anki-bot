@@ -13,7 +13,7 @@
 ## Tech stack
 Разработка полностью на Питоне:
 - API для телеграм бота ([python-telegram-bot](https://docs.python-telegram-bot.org/en/latest/index.html))
-- ORM для работы с реляционной (*хотя не обязательно*) БД
+- ORM для работы с реляционной БД ([peewee](https://docs.peewee-orm.com/en/latest/index.html))
 
 ## Архитектура БД 
 *`user_id` - id пользователя в Телеграм*
