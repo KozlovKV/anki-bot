@@ -12,7 +12,7 @@
 
 ## Tech stack
 Разработка полностью на Питоне:
-- API для телеграм бота
+- API для телеграм бота ([python-telegram-bot](https://docs.python-telegram-bot.org/en/latest/index.html))
 - ORM для работы с реляционной (*хотя не обязательно*) БД
 
 ## Архитектура БД 
