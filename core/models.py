@@ -32,8 +32,8 @@ class Label(Base):
 
 
 class CardLabelRelation(Base):
-	label_id = ForeignKeyField(model=Label, backref='label')
-	card_id = ForeignKeyField(model=Card, backref='card')
+	label = ForeignKeyField(model=Label, backref='relation')
+	card = ForeignKeyField(model=Card, backref='relation')
 	user_id = CharField()
 	is_private = BooleanField(default=False)
 
@@ -43,10 +43,10 @@ class CardLabelRelation(Base):
 
 class MemNote(Base):
 	# TODO: Добавить каскадное удаление
-	card_id = ForeignKeyField(model=Card, backref='card')
+	card = ForeignKeyField(model=Card, backref='mem_note')
 	user_id = CharField()
 	remembering_moment = DateTimeField()
-	memorization_level = IntegerField()
+	memorization_level = IntegerField(default=0)
 
 	class Meta:
 		table_name = 'MEM_NOTE'
