@@ -1,19 +1,6 @@
 from . import Label
 
 
-def label2Dict(label) -> dict:
-    if not label:
-        return None
-    return {
-        'id': label.id,
-        'user_id': label.user_id,
-        'name': label.name,
-        'side1Name': label.side1Name,
-        'side2Name': label.side2Name,
-        'is_private': label.is_private
-    }
-
-
 def create(user_id: int, name: str, side1: str, side2: str, is_private=False):
     label = Label(
         user_id=user_id, name=name,
@@ -24,13 +11,9 @@ def create(user_id: int, name: str, side1: str, side2: str, is_private=False):
     return label
 
 
-def readOne(label_id):
-    return label2Dict(Label.get_or_none(id=label_id))
-
-
-def readAllUserCards(user_id):
+def readAllUserLabels(user_id):
     labels = Label.select().where(Label.user_id == user_id)
-    return [label2Dict(label) for label in labels]
+    return [label.dict() for label in labels]
 
 
 def update(user_id, label_id, name: str, side1: str, side2: str, is_private=False):
