@@ -1,20 +1,24 @@
 from datetime import datetime
 from . import MemNote, Card
+from . import DEFAULT_DAYS_BEFORE_REPEATING_FIRST
+from . import DEFAULT_DAYS_BEFORE_REPEATING_SECOND
+from . import DEFAULT_EASINESS_FACTOR
 
 
 def memNote2Dict(mem_note) -> dict:
     if not mem_note:
         return None
     return {
-        'remembering_moment': mem_note.remembering_moment,
-        'memorization_level': mem_note.memorization_level,
+        'last_repeating': mem_note.last_repeating,
+        'days_before_repeating': mem_note.days_before_repeating,
+        'easiness_factor': mem_note.easiness_factor
     }
 
 
 def create(card: Card, user_id: int):
     note = MemNote(
         user_id=user_id, card=card,
-        remembering_moment=datetime.now()
+        last_repeating=datetime.now()
     )
     note.save()
     return note
@@ -24,17 +28,29 @@ def readOne(card, user_id):
     return memNote2Dict(MemNote.get_or_none(card=card, user_id=user_id))
 
 
-MIN_LEVEL = 0
-MAX_LEVEL = 10
+RESET_LIMIT = 3
+MAX_QUALITY = 5
 
 
-def change_memorization_level(note, delta):
-    note.remembering_moment = datetime.now()
-    note.memorization_level += delta
-    if note.memorization_level < MIN_LEVEL:
-        note.memorization_level = MIN_LEVEL
-    elif note.memorization_level > MAX_LEVEL:
-        note.memorization_level = MAX_LEVEL
+def recalculate_memory_note(note, quality):
+    note.last_repeating = datetime.now()
+
+    if quality > MAX_QUALITY:
+        quality = MAX_QUALITY
+
+    note.easiness_factor = note.easiness_factor + (
+            0.1 - (5 - quality) * (0.08 + (5 - quality) * 0.02)
+    )
+    if note.easiness_factor < 1.3:
+        note.easiness_factor = 1.3
+
+    if quality < RESET_LIMIT:
+        note.days_before_repeating = DEFAULT_DAYS_BEFORE_REPEATING_FIRST
+    elif note.days_before_repeating == 1:
+        note.days_before_repeating = DEFAULT_DAYS_BEFORE_REPEATING_SECOND
+    else:
+        note.days_before_repeating = round(note.days_before_repeating * note.easiness_factor)
+
     note.save()
     return note
 

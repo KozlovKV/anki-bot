@@ -40,11 +40,17 @@ class CardLabelRelation(Base):
 		table_name = 'CARDS_LABELS_RELATIONS'
 
 
+DEFAULT_DAYS_BEFORE_REPEATING_FIRST = 1
+DEFAULT_DAYS_BEFORE_REPEATING_SECOND = 6
+DEFAULT_EASINESS_FACTOR = 2.5
+
+
 class MemNote(Base):
 	card = ForeignKeyField(model=Card, backref='mem_note', on_delete='CASCADE')
 	user_id = CharField()
-	remembering_moment = DateTimeField()
-	memorization_level = IntegerField(default=0)
+	last_repeating = DateTimeField()
+	days_before_repeating = IntegerField(default=DEFAULT_DAYS_BEFORE_REPEATING_FIRST)
+	easiness_factor = FloatField(default=DEFAULT_EASINESS_FACTOR)
 
 	class Meta:
 		table_name = 'MEM_NOTE'
