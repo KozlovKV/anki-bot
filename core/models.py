@@ -18,6 +18,16 @@ class Card(Base):
     def __str__(self):
         return f'{self.side1} / {self.side2}'
 
+    def get_labels(self):
+        relations = CardLabelRelation.select().join(Label).where(CardLabelRelation.card == self)
+        return [relation.label for relation in relations]
+
+    def str_with_labels(self):
+        labels = self.get_labels()
+        if len(labels) == 0:
+            return str(self)
+        return f'{str(self)}\n\nЗаголовки:\n' + "\n".join(map(str, labels))
+
     def dict(self):
         return {
             'id': self.id,
@@ -34,20 +44,20 @@ class Label(Base):
     id = PrimaryKeyField()
     user_id = CharField()
     name = CharField()
-    side1Name = CharField()
-    side2Name = CharField()
     is_private = BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.name}: {self.side1Name} / {self.side2Name} ({"private" if self.is_private else "public"})'
+        return f'Уникальный ID - {self.id}. {self.name} - {"приватный" if self.is_private else "публичный"}'
+
+    def get_cards(self):
+        relations = CardLabelRelation.select().join(Card).where(CardLabelRelation.label == self)
+        return [relation.card for relation in relations]
 
     def dict(self):
         return {
             'id': self.id,
             'user_id': self.user_id,
             'name': self.name,
-            'side1Name': self.side1Name,
-            'side2Name': self.side2Name,
             'is_private': self.is_private
         }
 
