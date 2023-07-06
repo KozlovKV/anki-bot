@@ -20,5 +20,5 @@ BASE_BUTTONS = [
 
 
 def get_base_markup():
-    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2, one_time_keyboard=True)
+    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
     markup.add(*BASE_BUTTONS)

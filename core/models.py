@@ -22,6 +22,9 @@ class Card(Base):
         relations = CardLabelRelation.select().join(Label).where(CardLabelRelation.card == self)
         return [relation.label for relation in relations]
 
+    def get_mem_note(self, user_id):
+        return MemNote.get_or_create(card=self, user_id=user_id, defaults={'last_repeating': datetime.now()})[0]
+
     def str_with_labels(self):
         labels = self.get_labels()
         if len(labels) == 0:

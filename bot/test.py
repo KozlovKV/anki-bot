@@ -3,7 +3,7 @@ import telebot
 from secret import TOKEN
 import messages
 
-from core.anki_engine import AnkiSession
+from core import anki_engine
 
 bot = telebot.TeleBot(TOKEN)
 
@@ -14,16 +14,19 @@ def send_welcome(message):
 
 
 @bot.message_handler(regexp=messages.BASE_BUTTONS[0])  # TODO: нормальный вариант без индексов
-def create_card_prefix(message):
-    new_message = bot.send_message(message.chat.id, 'Введите обе стороны карточки через слэш')
-    bot.register_next_step_handler(new_message, create_card)
+def get_first_card_side(message):
+    new_message = bot.send_message(message.chat.id, 'Введите первую сторону карточки')
+    bot.register_next_step_handler(new_message, get_second_card_side)
 
 
-def create_card(message):
-    s = AnkiSession(message.from_user.id)
-    s.create_card(message.text)
-    new_message = bot.send_message(message.chat.id, 'Карточка успешно создана')
-    bot.register_next_step_handler(new_message, show_menu)
+def get_second_card_side(message):
+    new_message = bot.send_message(message.chat.id, 'Введите вторую сторону карточки')
+    bot.register_next_step_handler(new_message, create_card, message.text)
+
+
+def create_card(message, side1):
+    card = anki_engine.card.create(message.from_user.id, side1, message.text)
+    bot.send_message(message.chat.id, 'Карточка успешно создана')
 
 
 @bot.message_handler(func=lambda: True)

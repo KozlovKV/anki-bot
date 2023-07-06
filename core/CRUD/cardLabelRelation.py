@@ -10,18 +10,8 @@ def create(card, label, is_reversed=False):
     return relation
 
 
-def readOne(label, card):
+def read_one(label, card):
     return (CardLabelRelation.get_or_none(card=card, label=label)).dict()
-
-
-def readAllCardsByLabel(label):
-    relations = CardLabelRelation.select().join(Card).where(CardLabelRelation.label == label)
-    return [relation.card for relation in relations]
-
-
-def readAllLabelsByCard(card):
-    relations = CardLabelRelation.select().join(Label).where(CardLabelRelation.card == card)
-    return [relation.label for relation in relations]
 
 
 def delete(card, label):

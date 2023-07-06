@@ -1,9 +1,6 @@
 from core.CRUD import card as CardCRUD
 from core.CRUD import label as LabelCRUD
-from core.CRUD import memNote as MemNoteCRUD
 from core.CRUD import cardLabelRelation as CLR_CRUD
-
-from core.anki_engine import AnkiSession
 
 if __name__ == '__main__':
 	user_id = int(input('Введите ID: '))

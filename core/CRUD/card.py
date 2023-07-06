@@ -1,17 +1,10 @@
-from . import Card
+from . import Card, CardLabelRelation, MemNote
 
 
 def create(user_id: int, side1: str, side2: str):
-    card = Card(
-        user_id=user_id, side1=side1, side2=side2
-    )
+    card = Card(user_id=user_id, side1=side1, side2=side2)
     card.save()
     return card
-
-
-def readAllUserCards(user_id):
-    cards = Card.select().where(Card.user_id == user_id)
-    return [card.dict() for card in cards]
 
 
 def update(user_id, card_id, side1: str, side2: str):
@@ -32,4 +25,6 @@ def delete(user_id, card_id):
         raise IndexError
     if int(card.user_id) != user_id:
         raise PermissionError
+    CardLabelRelation.delete().where(CardLabelRelation.card == card).execute()
+    MemNote.delete().where(MemNote.card == card).execute()
     return card.delete_instance()
