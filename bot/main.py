@@ -27,6 +27,9 @@ def start():
     label_view.bind_handlers(bot)
     relations_view.bind_handlers(bot)
     train_view.bind_handlers(bot)
+
+    bot.set_my_commands(messages.get_commands_list(), language_code='ru')
+
     bot.infinity_polling()
 
 

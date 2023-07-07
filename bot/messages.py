@@ -11,6 +11,19 @@ WELCOME = """\
 Она повлияет на то, через сколько я спрошу карточку повторно"""
 
 
+def get_commands_list():
+    return [
+        telebot.types.BotCommand(
+            'chain', '"/chain <card_id> <label_id>" - создаёт связь между карточкой и заголовком'
+        ),
+        telebot.types.BotCommand(
+            'train',
+            '"/train <label_id> <count>" - '
+            'начинает тренировку по заданному заголовку с заданным количеством карточек'
+        )
+    ]
+
+
 class BaseButtonsEnum(Enum):
     ADD_CARD = 0
     ADD_LABEL = 1
