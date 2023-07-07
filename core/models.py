@@ -71,7 +71,7 @@ class Label(Base):
 class CardLabelRelation(Base):
     label = ForeignKeyField(model=Label, backref='relations', on_delete='CASCADE')
     card = ForeignKeyField(model=Card, backref='relations', on_delete='CASCADE')
-    is_reversed = BooleanField(default=False)  # TODO: FIX NAME
+    is_reversed = BooleanField(default=False)
 
     def dict(self):
         return {

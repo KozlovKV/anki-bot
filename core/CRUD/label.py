@@ -1,4 +1,5 @@
 from . import Label, CardLabelRelation
+from . import utils
 
 
 def create(user_id: int, name: str, is_private=False):
@@ -11,11 +12,7 @@ def create(user_id: int, name: str, is_private=False):
 
 
 def update(user_id, label_id, name: str, is_private=False):
-    label = Label.get_or_none(id=label_id)
-    if not label:
-        raise IndexError
-    if int(label.user_id) != user_id:
-        raise PermissionError
+    label = utils.user_protected_read(Label, user_id, label_id)
     label.name = name
     label.is_private = is_private
     label.save()
@@ -23,10 +20,6 @@ def update(user_id, label_id, name: str, is_private=False):
 
 
 def delete(user_id, label_id):
-    label = Label.get_or_none(id=label_id)
-    if not label:
-        raise IndexError
-    if int(label.user_id) != user_id:
-        raise PermissionError
-    CardLabelRelation.delete().where(CardLabelRelation.label == labels_list[label_index]).execute()
+    label = utils.user_protected_read(Label, user_id, label_id)
+    CardLabelRelation.delete().where(CardLabelRelation.label == label).execute()
     return label.delete_instance()

@@ -2,6 +2,7 @@ from .models import Card, Label, CardLabelRelation, MemNote
 from .CRUD import card
 from .CRUD import label
 from .CRUD import cardLabelRelation
+from .CRUD import utils
 
 
 RESET_LIMIT = 3
