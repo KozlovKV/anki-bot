@@ -1,10 +1,12 @@
 import telebot
 
 from secret import TOKEN
+
 import messages
 import card_view
 import label_view
 import relations_view
+import train_view
 
 
 bot = telebot.TeleBot(TOKEN)
@@ -24,6 +26,7 @@ def start():
     card_view.bind_handlers(bot)
     label_view.bind_handlers(bot)
     relations_view.bind_handlers(bot)
+    train_view.bind_handlers(bot)
     bot.infinity_polling()
 
 

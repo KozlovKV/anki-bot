@@ -38,3 +38,11 @@ def get_base_markup():
 
 def get_yes_no_markup():
     return telebot.types.ReplyKeyboardMarkup().add('Да', 'Нет')
+
+
+def get_count_markup():
+    return telebot.types.ReplyKeyboardMarkup(row_width=4).add('5', '10', '25', '50')
+
+
+def get_quality_markup():
+    return telebot.types.ReplyKeyboardMarkup(row_width=6).add('0', '1', '2', '3', '4', '5')
