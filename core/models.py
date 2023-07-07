@@ -17,7 +17,7 @@ class Card(Base):
     side2 = CharField()
 
     def __str__(self):
-        return f'{self.side1} / {self.side2}'
+        return f'ID {self.id}: {self.side1} / {self.side2}'
 
     def get_labels(self):
         relations = CardLabelRelation.select().join(Label).where(CardLabelRelation.card == self)
@@ -58,7 +58,7 @@ class Label(Base):
     is_private = BooleanField(default=False)
 
     def __str__(self):
-        return f'Уникальный ID - {self.id}. {self.name} - {"приватный" if self.is_private else "публичный"}'
+        return f'ID {self.id}: {self.name} - {"приватный" if self.is_private else "публичный"}'
 
     def get_cards(self):
         relations = CardLabelRelation.select().join(Card).where(CardLabelRelation.label == self)
