@@ -1,3 +1,4 @@
+from datetime import timedelta, datetime
 from peewee import *
 
 DB_NAME = './database.db'
@@ -24,6 +25,13 @@ class Card(Base):
 
     def get_mem_note(self, user_id):
         return MemNote.get_or_create(card=self, user_id=user_id, defaults={'last_repeating': datetime.now()})[0]
+
+    def can_be_trained(self, user_id):
+        note = self.get_mem_note(user_id)
+        days_delta = timedelta(note.days_before_repeating - 1)
+        if datetime.now() - note.last_repeating > days_delta:
+            return True
+        return False
 
     def str_with_labels(self):
         labels = self.get_labels()
