@@ -40,4 +40,6 @@ def create_card(message, bot: telebot.TeleBot, side1: str):
 def show_user_cards(message, bot: telebot.TeleBot):
     cards = anki_engine.get_user_cards(message.from_user.id)
     for card in cards:
-        bot.send_message(message.chat.id, str(card))
+        bot.send_message(message.chat.id, card.str_with_labels())
+    if len(cards) == 0:
+        bot.send_message(message.chat.id, 'У вас пока нет карточек. Скорее создайте первую!')

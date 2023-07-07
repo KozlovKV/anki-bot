@@ -2,9 +2,16 @@ from . import CardLabelRelation, Card, Label
 from . import utils
 
 
-def create(user_id, card_id, label_id, is_reversed=False):
+def create(user_id, card_id, label_id, is_reversed=False) -> [CardLabelRelation, bool]:
     card = utils.user_protected_read(Card, user_id, card_id)
     label = utils.user_protected_read(Label, user_id, label_id)
+    return CardLabelRelation.get_or_create(
+        card=card, label=label,
+        is_reversed=is_reversed
+    )
+
+
+def create_by_instances(user_id, card, label, is_reversed=False) -> [CardLabelRelation, bool]:
     return CardLabelRelation.get_or_create(
         card=card, label=label,
         is_reversed=is_reversed

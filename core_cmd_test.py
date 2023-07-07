@@ -22,7 +22,7 @@ if __name__ == '__main__':
 		elif action == 2:
 			cards_list = anki_engine.get_user_cards(user_id)
 			if len(cards_list) == 0:
-				print('У вас пока нет карточек. Скорее создайте!')
+				print('У вас пока нет карточек. Скорее создайте первую!')
 			for card in cards_list:
 				print(f'Карточка {card.id}:\n {card.str_with_labels()}', end='\n=====\n')
 		elif action == 3:

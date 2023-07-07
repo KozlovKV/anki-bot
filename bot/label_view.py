@@ -44,3 +44,5 @@ def show_user_labels(message, bot: telebot.TeleBot):
     labels = anki_engine.get_user_labels(message.from_user.id)
     for label in labels:
         bot.send_message(message.chat.id, str(label))
+    if len(labels) == 0:
+        bot.send_message(message.chat.id, 'У вас пока нет заголовков. Создайте новый!')
