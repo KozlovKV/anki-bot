@@ -1,6 +1,6 @@
 import telebot
 
-import messages
+import bot.keyboards as base_keyboards
 
 from core import anki_engine
 
@@ -8,7 +8,7 @@ from core import anki_engine
 def bind_handlers(bot: telebot.TeleBot):
     bot.register_message_handler(
         ask_label_id,
-        regexp=messages.BASE_BUTTONS[messages.BaseButtonsEnum.TRAIN.value],
+        regexp=base_keyboards.BaseButtonsEnum.TRAIN.value,
         pass_bot=True
     )
     bot.register_message_handler(
@@ -27,7 +27,7 @@ def handle_label_id(message, bot: telebot.TeleBot):
     label_id = int(message.text)
     new_message = bot.send_message(
         message.chat.id, 'Сколько карточек хотите повторить?',
-        reply_markup=messages.get_count_markup()
+        reply_markup=base_keyboards.get_count_markup()
     )
     bot.register_next_step_handler(new_message, handle_count, bot, label_id)
 
@@ -56,12 +56,12 @@ def train(message, bot, train_list, is_initial=True, current_card=None):
     if len(train_list) == 0:
         bot.send_message(
             message.chat.id, 'Карточки закончились. Отдохните ;)',
-            reply_markup=messages.get_base_markup()
+            reply_markup=base_keyboards.get_base_markup()
         )
         return
     new_message = bot.send_message(
         message.chat.id, f'{str(train_list[0])}\n\nНасколько хорошо вы помните эту карточку?',
-        reply_markup=messages.get_quality_markup()
+        reply_markup=base_keyboards.get_quality_markup()
     )
     bot.register_next_step_handler(new_message, train, bot, train_list[1:], False, train_list[0])
 

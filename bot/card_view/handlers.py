@@ -1,44 +1,50 @@
 import telebot
-
-import messages
+import os
 
 from core import anki_engine
+
+import bot.keyboards as base_keyboards
+
+import messages
+from . import keyboards
+
+os.path.join('../..')
 
 
 def bind_handlers(bot: telebot.TeleBot):
     bot.register_message_handler(
         get_first_card_side,
-        regexp=messages.BASE_BUTTONS[messages.BaseButtonsEnum.ADD_CARD.value],
+        regexp=base_keyboards.BaseButtonsEnum.ADD_CARD.value,
         pass_bot=True
     )
     bot.register_message_handler(
         show_user_cards,
-        regexp=messages.BASE_BUTTONS[messages.BaseButtonsEnum.SHOW_CARDS.value],
+        regexp=base_keyboards.BaseButtonsEnum.SHOW_CARDS.value,
         pass_bot=True
     )
     bot.register_callback_query_handler(
-        delete_card,
-        func=lambda call: '/card/delete/proof' in call.data,
+        set_base_card_menu,
+        func=lambda call: keyboards.CardInlinesUrls.BASE_MENU in call.data,
         pass_bot=True
     )
     bot.register_callback_query_handler(
         proof_deletion,
-        func=lambda call: '/card/delete ' in call.data,
+        func=lambda call: keyboards.CardInlinesUrls.DELETE in call.data,
         pass_bot=True
     )
     bot.register_callback_query_handler(
         delete_card,
-        func=lambda call: '/card/delete/proof ' in call.data,
+        func=lambda call: keyboards.CardInlinesUrls.DELETE_PROOF in call.data,
         pass_bot=True
     )
     bot.register_callback_query_handler(
         ask_edit_side,
-        func=lambda call: '/card/edit ' in call.data,
+        func=lambda call: keyboards.CardInlinesUrls.EDIT in call.data,
         pass_bot=True
     )
     bot.register_callback_query_handler(
         ask_new_side_text,
-        func=lambda call: '/card/edit/' in call.data,
+        func=lambda call: keyboards.CardInlinesUrls.EDIT_SIDE in call.data,
         pass_bot=True
     )
 
@@ -53,25 +59,28 @@ def get_second_card_side(message, bot: telebot.TeleBot):
     bot.register_next_step_handler(new_message, create_card, bot, message.text)
 
 
-def create_card(message, bot: telebot.TeleBot, side1: str):
+def create_card(message: telebot.types.Message, bot: telebot.TeleBot, side1: str):
     new_message = bot.send_message(
         message.chat.id, 'Карточка успешно создана',
-        reply_markup=messages.get_base_markup()
+        reply_markup=base_keyboards.get_base_markup()
     )
     card = anki_engine.card_controls.create(message.from_user.id, side1, message.text)
     show_card(new_message, bot, card)
 
 
 # TODO: Вынести щаблоны для инлайнов в константы, чтобы не допустить ошибок с проверкой
-def show_card(message, bot: telebot.TeleBot, card: anki_engine.Card):
-    inline = telebot.util.quick_markup({
-        'Связать с заголовком': {'callback_data': f'/card/relation/create {card.id}'},
-        'Изменить': {'callback_data': f'/card/edit {card.id}'},
-        'Удалить': {'callback_data': f'/card/delete {card.id}'},
-    }, row_width=5)
+def show_card(message: telebot.types.Message, bot: telebot.TeleBot, card: anki_engine.Card):
     bot.send_message(
         message.chat.id, card.str_with_labels(),
-        reply_markup=inline
+        reply_markup=keyboards.get_base_card_inline(card.id)
+    )
+
+
+def set_base_card_menu(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+    card_id = int(call.data.split(' ')[1])
+    bot.edit_message_reply_markup(
+        call.message.chat.id, call.message.id,
+        reply_markup=keyboards.get_base_card_inline(card_id)
     )
 
 
@@ -85,18 +94,20 @@ def show_user_cards(message, bot: telebot.TeleBot):
 
 def ask_edit_side(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     card_id = int(call.data.split(' ')[1])
-    inline = telebot.util.quick_markup({
-        'Изменить первую сторону': {'callback_data': f'/card/edit/1 {card_id}'},
-        'Изменить вторую сторону': {'callback_data': f'/card/edit/2 {card_id}'},
-    }, row_width=2)
-    bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=inline)
+    bot.edit_message_reply_markup(
+        call.message.chat.id, call.message.id,
+        reply_markup=keyboards.get_edit_card_inline(card_id)
+    )
 
 
 def ask_new_side_text(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     data = call.data.split(' ')
     side_number = int(data[0].split('/')[-1])
     card_id = int(data[1])
-    new_message = bot.send_message(call.message.chat.id, f'Введите новый текст стороны {side_number}')
+    placeholder = telebot.types.ForceReply(
+        input_field_placeholder=f'Введите новый текст стороны {side_number}'
+    )
+    new_message = bot.send_message(call.message.chat.id, text='Режим редактирования', reply_markup=placeholder)
     bot.register_next_step_handler(new_message, edit_side, bot, side_number, card_id)
 
 
@@ -109,17 +120,17 @@ def edit_side(message: telebot.types.Message, bot: telebot.TeleBot, side_number,
     card.save()
     new_message = bot.send_message(
         message.chat.id, 'Карточка успешно изменена',
-        reply_markup=messages.get_base_markup()
+        reply_markup=base_keyboards.get_base_markup()
     )
     show_card(new_message, bot, card)
 
 
 def proof_deletion(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     card_id = int(call.data.split(' ')[1])
-    inline = telebot.util.quick_markup({
-        'Подтвердить удаление': {'callback_data': f'/card/delete/proof {card_id}'},  # TODO: Добавить обратную кнопку
-    }, row_width=1)
-    bot.edit_message_reply_markup(call.message.chat.id, call.message.id, reply_markup=inline)
+    bot.edit_message_reply_markup(
+        call.message.chat.id, call.message.id,
+        reply_markup=keyboards.get_delete_card_inline(card_id)
+    )
 
 
 def delete_card(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):

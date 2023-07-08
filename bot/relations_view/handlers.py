@@ -1,6 +1,6 @@
 import telebot
 
-import messages
+import bot.keyboards as base_keyboards
 
 from core import anki_engine
 
@@ -8,7 +8,7 @@ from core import anki_engine
 def bind_handlers(bot: telebot.TeleBot):
     bot.register_message_handler(
         ask_card_id,
-        regexp=messages.BASE_BUTTONS[messages.BaseButtonsEnum.ADD_RELATION.value],
+        regexp=base_keyboards.BaseButtonsEnum.ADD_RELATION.value,
         pass_bot=True
     )
     bot.register_message_handler(
@@ -44,7 +44,7 @@ def create_relation(message, bot: telebot.TeleBot, card_id: int, label_id: int):
         if relation[1] else \
         f'Связь между карточкой\n\n {card}\nИ заголовком\n\n {label}\n\nуже есть'
     bot.send_message(
-        message.chat.id, text, reply_markup=messages.get_base_markup()
+        message.chat.id, text, reply_markup=base_keyboards.get_base_markup()
     )
 
 
