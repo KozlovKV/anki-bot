@@ -29,3 +29,4 @@ def get_count_markup():
 
 def get_quality_markup():
     return telebot.types.ReplyKeyboardMarkup(row_width=6).add('0', '1', '2', '3', '4', '5')
+

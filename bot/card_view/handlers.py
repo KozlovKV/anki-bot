@@ -4,6 +4,7 @@ import os
 from core import anki_engine
 
 import bot.keyboards as base_keyboards
+import bot.utils as utils
 
 import messages
 from . import keyboards
@@ -107,8 +108,13 @@ def ask_new_side_text(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     placeholder = telebot.types.ForceReply(
         input_field_placeholder=f'Введите новый текст стороны {side_number}'
     )
-    new_message = bot.send_message(call.message.chat.id, text='Режим редактирования', reply_markup=placeholder)
-    bot.register_next_step_handler(new_message, edit_side, bot, side_number, card_id)
+    new_message = bot.send_message(
+        call.message.chat.id, reply_markup=placeholder, reply_to_message_id=call.message.id,
+        text=f'Введите новый текст стороны {side_number} ответом на это сообщение',
+
+    )
+    bot.register_for_reply(new_message, edit_side, bot, side_number, card_id)
+    bot.register_for_reply(new_message, utils.delete_message_by_handling, bot, new_message)
 
 
 def edit_side(message: telebot.types.Message, bot: telebot.TeleBot, side_number, card_id):
@@ -118,6 +124,7 @@ def edit_side(message: telebot.types.Message, bot: telebot.TeleBot, side_number,
     else:
         card.side2 = message.text
     card.save()
+    bot.delete_message(message.chat.id, message.id, 5)
     new_message = bot.send_message(
         message.chat.id, 'Карточка успешно изменена',
         reply_markup=base_keyboards.get_base_markup()

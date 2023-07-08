@@ -23,6 +23,21 @@ def bind_handlers(bot: telebot.TeleBot):
         func=lambda call: keyboards.LabelInlinesUrls.CREATE_PERMISSION in call.data,
         pass_bot=True
     )
+    bot.register_callback_query_handler(
+        proof_deletion,
+        func=lambda call: keyboards.LabelInlinesUrls.DELETE in call.data,
+        pass_bot=True
+    )
+    bot.register_callback_query_handler(
+        delete_label,
+        func=lambda call: keyboards.LabelInlinesUrls.DELETE_PROOF in call.data,
+        pass_bot=True
+    )
+    bot.register_callback_query_handler(
+        set_base_label_menu,
+        func=lambda call: keyboards.LabelInlinesUrls.BASE_MENU in call.data,
+        pass_bot=True
+    )
 
 
 def get_private_flag(message, bot: telebot.TeleBot):
@@ -47,6 +62,14 @@ def create_label(message, bot: telebot.TeleBot, is_private: bool):
     show_label(message, bot, label)
 
 
+def set_base_label_menu(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+    label_id = int(call.data.split(' ')[1])
+    bot.edit_message_reply_markup(
+        call.message.chat.id, call.message.id,
+        reply_markup=keyboards.get_base_label_inline(label_id)
+    )
+
+
 def show_label(message: telebot.types.Message, bot: telebot.TeleBot, label: anki_engine.Label):
     bot.send_message(
         message.chat.id, str(label),
@@ -60,3 +83,18 @@ def show_user_labels(message, bot: telebot.TeleBot):
         show_label(message, bot, label)
     if len(labels) == 0:
         bot.send_message(message.chat.id, 'У вас пока нет заголовков. Создайте новый!')
+
+
+def proof_deletion(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+    label_id = int(call.data.split(' ')[1])
+    bot.edit_message_reply_markup(
+        call.message.chat.id, call.message.id,
+        reply_markup=keyboards.get_delete_label_inline(label_id)
+    )
+
+
+def delete_label(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+    bot.delete_message(call.message.chat.id, call.message.id)
+    label_id = int(call.data.split(' ')[1])
+    anki_engine.label_controls.delete(call.from_user.id, label_id)
+    bot.answer_callback_query(call.id, 'Заголовок успешно удалён')
