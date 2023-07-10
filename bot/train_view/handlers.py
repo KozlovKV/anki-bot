@@ -2,6 +2,7 @@ import telebot
 
 import bot.keyboards as base_keyboards
 from bot import utils
+from bot.label_view import keyboards as label_keyboards
 
 from core import anki_engine
 
@@ -12,6 +13,11 @@ def bind_handlers(bot: telebot.TeleBot):
     bot.register_message_handler(
         ask_label_id,
         regexp=base_keyboards.BaseButtonsEnum.TRAIN.value,
+        pass_bot=True
+    )
+    bot.register_callback_query_handler(
+        handle_label_id_from_inline,
+        func=lambda call: label_keyboards.LabelInlinesUrls.TRAIN in call.data,
         pass_bot=True
     )
     bot.register_message_handler(
@@ -32,11 +38,20 @@ def ask_label_id(message: telebot.types.Message, bot: telebot.TeleBot):
         'Введите ID заголовка для тренировки ответом на это сообщение (работает один раз)',
         reply_to_message_id=message.id
     )
-    bot.register_for_reply(new_message, ask_count, bot)
+    bot.register_for_reply(new_message, handle_label_id_from_message, bot)
 
 
-def ask_count(message: telebot.types.Message, bot: telebot.TeleBot):
+def handle_label_id_from_inline(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+    label_id = int(call.data.split(' ')[1])
+    ask_count(call.message, bot, label_id)
+
+
+def handle_label_id_from_message(message: telebot.types.Message, bot: telebot.TeleBot):
     label_id = int(message.text)
+    ask_count(message, bot, label_id)
+
+
+def ask_count(message: telebot.types.Message, bot: telebot.TeleBot, label_id: int):
     new_message = utils.send_message_with_force_reply_placeholder(
         bot, message.chat.id, 'Количество карточек',
         'Сколько карточек хотите повторить? Введите число ответом на это сообщение (работает один раз)',
@@ -74,8 +89,7 @@ def show_trainable_card(
 
 
 def train(
-        message: telebot.types.Message, bot: telebot.TeleBot,
-        train_list
+        message: telebot.types.Message, bot: telebot.TeleBot,  train_list
 ):
     if len(train_list) == 0:
         end_message = bot.send_message(
@@ -84,7 +98,7 @@ def train(
         )
         return
     bot.send_message(
-        message.chat.id, f'Для тренировки найдено {len(train_list)} карточек',
+        message.chat.id, f'Найдено карточек для тренировки: {len(train_list)}',
         reply_to_message_id=message.id
     )
     start_message = bot.send_message(message.chat.id, 'Начало тренировки')
@@ -94,19 +108,6 @@ def train(
         message.chat.id, 'Вы можете перейти к началу тренировочного списка по этому реплаю',
         reply_to_message_id=start_message.id, reply_markup=base_keyboards.get_base_markup()
     )
-    # if not is_initial:
-    #     anki_engine.recalculate_memory_note(message.from_user.id, current_card.id, int(message.text))
-    # if len(train_list) == 0:
-    #     bot.send_message(
-    #         message.chat.id, 'Карточки закончились. Отдохните ;)',
-    #         reply_markup=base_keyboards.get_base_markup()
-    #     )
-    #     return
-    # new_message = bot.send_message(
-    #     message.chat.id, f'{str(train_list[0])}\n\nНасколько хорошо вы помните эту карточку?',
-    #     reply_markup=base_keyboards.get_quality_markup()
-    # )
-    # bot.register_next_step_handler(new_message, train, bot, train_list[1:], False, train_list[0])
 
 
 def recalculate_card(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
