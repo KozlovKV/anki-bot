@@ -14,6 +14,9 @@ class LabelInlinesUrls:
 
     CREATE_PERMISSION = '/label/create '
 
+    EDIT_PERMISSION = '/label/edit/permission '
+    EDIT_NAME = '/label/edit/name '
+
 
 def get_base_label_inline(label_id: int):
     inline = telebot.types.InlineKeyboardMarkup()
@@ -36,13 +39,21 @@ def get_base_label_inline(label_id: int):
 
 def get_yes_no_inline():
     return telebot.util.quick_markup({
-        'Да': {'callback_data': f'{LabelInlinesUrls.CREATE_PERMISSION}{"private"}'},
-        'Нет': {'callback_data': f'{LabelInlinesUrls.CREATE_PERMISSION}{"public"}'},
+        'Да': {'callback_data': f'{LabelInlinesUrls.CREATE_PERMISSION}{"public"}'},
+        'Нет': {'callback_data': f'{LabelInlinesUrls.CREATE_PERMISSION}{"private"}'},
     }, row_width=2)
 
 
 def get_delete_label_inline(label_id):
     return telebot.util.quick_markup({
         'Подтвердить удаление': {'callback_data': f'{LabelInlinesUrls.DELETE_PROOF}{label_id}'},
-        'Отмена': {'callback_data': f'{LabelInlinesUrls.BASE_MENU}{label_id}'},
+        'Назад': {'callback_data': f'{LabelInlinesUrls.BASE_MENU}{label_id}'},
+    }, row_width=1)
+
+
+def get_edit_label_inline(label_id):
+    return telebot.util.quick_markup({
+        'Переключить режим доступа': {'callback_data': f'{LabelInlinesUrls.EDIT_PERMISSION}{label_id}'},
+        'Изменить название': {'callback_data': f'{LabelInlinesUrls.EDIT_NAME}{label_id}'},
+        'Назад': {'callback_data': f'{LabelInlinesUrls.BASE_MENU}{label_id}'},
     }, row_width=1)

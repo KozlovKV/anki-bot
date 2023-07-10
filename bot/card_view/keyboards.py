@@ -27,14 +27,14 @@ def get_base_card_inline(card_id: int):
 
 def get_edit_card_inline(card_id):
     return telebot.util.quick_markup({
-        'Изменить первую сторону': {'callback_data': f'{CardInlinesUrls.EDIT_SIDE}{1} {card_id}'},
-        'Изменить вторую сторону': {'callback_data': f'{CardInlinesUrls.EDIT_SIDE}{2} {card_id}'},
-        'Отменить редактирование': {'callback_data': f'{CardInlinesUrls.BASE_MENU}{card_id}'},
+        'Сторона 1': {'callback_data': f'{CardInlinesUrls.EDIT_SIDE}{1} {card_id}'},
+        'Сторона 2': {'callback_data': f'{CardInlinesUrls.EDIT_SIDE}{2} {card_id}'},
+        'Назад': {'callback_data': f'{CardInlinesUrls.BASE_MENU}{card_id}'},
     }, row_width=2)
 
 
 def get_delete_card_inline(card_id):
     return telebot.util.quick_markup({
         'Подтвердить удаление': {'callback_data': f'{CardInlinesUrls.DELETE_PROOF}{card_id}'},
-        'Отмена': {'callback_data': f'{CardInlinesUrls.BASE_MENU}{card_id}'},
+        'Назад': {'callback_data': f'{CardInlinesUrls.BASE_MENU}{card_id}'},
     }, row_width=1)

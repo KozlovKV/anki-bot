@@ -14,7 +14,7 @@ os.path.join('../..')
 
 def bind_handlers(bot: telebot.TeleBot):
     bot.register_message_handler(
-        get_first_card_side,
+        ask_first_card_side,
         regexp=base_keyboards.BaseButtonsEnum.ADD_CARD.value,
         pass_bot=True
     )
@@ -50,14 +50,28 @@ def bind_handlers(bot: telebot.TeleBot):
     )
 
 
-def get_first_card_side(message, bot: telebot.TeleBot):
-    new_message = bot.send_message(message.chat.id, 'Введите первую сторону карточки')
-    bot.register_next_step_handler(new_message, get_second_card_side, bot)
+def ask_first_card_side(message, bot: telebot.TeleBot):
+    placeholder = telebot.types.ForceReply(
+        input_field_placeholder=f'Первая сторона карточки'
+    )
+    new_message = bot.send_message(
+        message.chat.id, 'Введите первую сторону карточки ответом на это сообщение (работает один раз)',
+        reply_markup=placeholder
+    )
+    bot.register_for_reply(new_message, ask_second_card_side, bot)
+    # bot.register_next_step_handler(new_message, ask_second_card_side, bot)
 
 
-def get_second_card_side(message, bot: telebot.TeleBot):
-    new_message = bot.send_message(message.chat.id, 'Введите вторую сторону карточки')
-    bot.register_next_step_handler(new_message, create_card, bot, message.text)
+def ask_second_card_side(message, bot: telebot.TeleBot):
+    placeholder = telebot.types.ForceReply(
+        input_field_placeholder=f'Вторая сторона карточки'
+    )
+    new_message = bot.send_message(
+        message.chat.id, 'Введите вторую сторону карточки ответом на это сообщение (работает один раз)',
+        reply_markup=placeholder
+    )
+    bot.register_for_reply(new_message, create_card, bot, message.text)
+    # bot.register_next_step_handler(new_message, create_card, bot, message.text)
 
 
 def create_card(message: telebot.types.Message, bot: telebot.TeleBot, side1: str):
@@ -69,7 +83,6 @@ def create_card(message: telebot.types.Message, bot: telebot.TeleBot, side1: str
     show_card(new_message, bot, card)
 
 
-# TODO: Вынести щаблоны для инлайнов в константы, чтобы не допустить ошибок с проверкой
 def show_card(message: telebot.types.Message, bot: telebot.TeleBot, card: anki_engine.Card):
     bot.send_message(
         message.chat.id, card.str_with_labels(),
@@ -114,7 +127,7 @@ def ask_new_side_text(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
 
     )
     bot.register_for_reply(new_message, edit_side, bot, side_number, card_id)
-    bot.register_for_reply(new_message, utils.delete_message_by_handling, bot, new_message)
+    # bot.register_for_reply(new_message, utils.delete_message_by_handling, bot, new_message)
 
 
 def edit_side(message: telebot.types.Message, bot: telebot.TeleBot, side_number, card_id):
@@ -124,7 +137,7 @@ def edit_side(message: telebot.types.Message, bot: telebot.TeleBot, side_number,
     else:
         card.side2 = message.text
     card.save()
-    bot.delete_message(message.chat.id, message.id, 5)
+    # bot.delete_message(message.chat.id, message.id, 5)
     new_message = bot.send_message(
         message.chat.id, 'Карточка успешно изменена',
         reply_markup=base_keyboards.get_base_markup()
@@ -144,4 +157,4 @@ def delete_card(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     bot.delete_message(call.message.chat.id, call.message.id)
     card_id = int(call.data.split(' ')[1])
     anki_engine.card_controls.delete(call.from_user.id, card_id)
-    bot.answer_callback_query(call.id, 'Карточка успешно удалена')
+    bot.answer_callback_query(call.id, 'Карточка успешно удалена')  # TODO: Разобраться, почему не работает

@@ -11,10 +11,19 @@ def create(user_id: int, name: str, is_private=False):
     return label
 
 
-def update(user_id, label_id, name: str, is_private=False):
+def update(user_id, label_id, name=None | str, is_private=None | bool):
     label = utils.user_protected_read(Label, user_id, label_id)
-    label.name = name
-    label.is_private = is_private
+    if name:
+        label.name = name
+    if is_private:
+        label.is_private = is_private
+    label.save()
+    return label
+
+
+def switch_permission(user_id, label_id):
+    label = utils.user_protected_read(Label, user_id, label_id)
+    label.is_private = not label.is_private
     label.save()
     return label
 
