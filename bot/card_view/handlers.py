@@ -4,7 +4,7 @@ import os
 from core import anki_engine
 
 import bot.keyboards as base_keyboards
-import bot.utils as utils
+from bot import utils
 
 import messages
 from . import keyboards
@@ -51,24 +51,18 @@ def bind_handlers(bot: telebot.TeleBot):
 
 
 def ask_first_card_side(message, bot: telebot.TeleBot):
-    placeholder = telebot.types.ForceReply(
-        input_field_placeholder=f'Первая сторона карточки'
-    )
-    new_message = bot.send_message(
-        message.chat.id, 'Введите первую сторону карточки ответом на это сообщение (работает один раз)',
-        reply_markup=placeholder
+    new_message = utils.send_message_with_force_reply_placeholder(
+        bot, message.chat.id, 'Первая сторона карточки',
+        'Введите первую сторону карточки ответом на это сообщение (работает один раз)'
     )
     bot.register_for_reply(new_message, ask_second_card_side, bot)
     # bot.register_next_step_handler(new_message, ask_second_card_side, bot)
 
 
 def ask_second_card_side(message, bot: telebot.TeleBot):
-    placeholder = telebot.types.ForceReply(
-        input_field_placeholder=f'Вторая сторона карточки'
-    )
-    new_message = bot.send_message(
-        message.chat.id, 'Введите вторую сторону карточки ответом на это сообщение (работает один раз)',
-        reply_markup=placeholder
+    new_message = utils.send_message_with_force_reply_placeholder(
+        bot, message.chat.id, 'Вторая сторона карточки',
+        'Введите вторую сторону карточки ответом на это сообщение (работает один раз)'
     )
     bot.register_for_reply(new_message, create_card, bot, message.text)
     # bot.register_next_step_handler(new_message, create_card, bot, message.text)
@@ -118,13 +112,10 @@ def ask_new_side_text(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     data = call.data.split(' ')
     side_number = int(data[0].split('/')[-1])
     card_id = int(data[1])
-    placeholder = telebot.types.ForceReply(
-        input_field_placeholder=f'Введите новый текст стороны {side_number}'
-    )
-    new_message = bot.send_message(
-        call.message.chat.id, reply_markup=placeholder, reply_to_message_id=call.message.id,
-        text=f'Введите новый текст стороны {side_number} ответом на это сообщение',
-
+    new_message = utils.send_message_with_force_reply_placeholder(
+        bot, call.message.chat.id, f'Новый текст стороны {side_number}',
+        f'Введите новый текст стороны {side_number} ответом на это сообщение (работает один раз)',
+        reply_to_message_id=call.message.id
     )
     bot.register_for_reply(new_message, edit_side, bot, side_number, card_id)
     # bot.register_for_reply(new_message, utils.delete_message_by_handling, bot, new_message)

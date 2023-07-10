@@ -1,6 +1,7 @@
 import telebot
 
 import bot.keyboards as base_keyboards
+from bot import utils
 
 from core import anki_engine
 
@@ -64,12 +65,9 @@ def get_private_flag(message: telebot.types.Message, bot: telebot.TeleBot):
 
 
 def ask_label_name(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
-    placeholder = telebot.types.ForceReply(
-        input_field_placeholder=f'Название заголовка'
-    )
-    new_message = bot.send_message(
-        call.message.chat.id, 'Введите название заголовка ответом на это сообщение',
-        reply_markup=placeholder
+    new_message = utils.send_message_with_force_reply_placeholder(
+        bot, call.message.chat.id, 'Название заголовка',
+        'Введите название заголовка ответом на это сообщение (работает один раз)'
     )
     is_private = 'private' in call.data
     # bot.register_next_step_handler(new_message, create_label, bot, is_private)
@@ -128,13 +126,10 @@ def switch_label_permission(call: telebot.types.CallbackQuery, bot: telebot.Tele
 
 def ask_new_label_name(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     label_id = int(call.data.split(' ')[1])
-    placeholder = telebot.types.ForceReply(
-        input_field_placeholder=f'Новое название заголовка'
-    )
-    new_message = bot.send_message(
-        call.message.chat.id, reply_markup=placeholder, reply_to_message_id=call.message.id,
-        text=f'Введите новое название заголовка ответом на это сообщение (Работает один раз)',
-
+    new_message = utils.send_message_with_force_reply_placeholder(
+        bot, call.message.chat.id, 'Новое название заголовка',
+        'Введите новое название заголовка ответом на это сообщение (Работает один раз)',
+        reply_to_message_id=call.message.id
     )
     bot.register_for_reply(new_message, edit_label_name, bot, label_id)
 
