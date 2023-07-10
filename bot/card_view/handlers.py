@@ -19,7 +19,7 @@ def bind_handlers(bot: telebot.TeleBot):
         pass_bot=True
     )
     bot.register_message_handler(
-        show_user_cards,
+        handle_user_id,
         regexp=base_keyboards.BaseButtonsEnum.SHOW_CARDS.value,
         pass_bot=True
     )
@@ -74,13 +74,20 @@ def create_card(message: telebot.types.Message, bot: telebot.TeleBot, side1: str
         reply_markup=base_keyboards.get_base_markup()
     )
     card = anki_engine.card_controls.create(message.from_user.id, side1, message.text)
-    show_card(new_message, bot, card)
+    show_card(new_message.chat.id, bot, card)
 
 
-def show_card(message: telebot.types.Message, bot: telebot.TeleBot, card: anki_engine.Card):
+def handle_user_id(message: telebot.types.Message, bot: telebot.TeleBot):
+    show_user_cards(message.chat.id, message.from_user.id, bot)
+
+
+def show_card(
+        chat_id: int, bot: telebot.TeleBot, card: anki_engine.Card,
+        markup_function=keyboards.get_base_card_inline
+):
     bot.send_message(
-        message.chat.id, card.str_with_labels(),
-        reply_markup=keyboards.get_base_card_inline(card.id)
+        chat_id, card.str_with_labels(),
+        reply_markup=markup_function(card.id)
     )
 
 
@@ -92,12 +99,15 @@ def set_base_card_menu(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     )
 
 
-def show_user_cards(message, bot: telebot.TeleBot):
-    cards = anki_engine.get_user_cards(message.from_user.id)
+def show_user_cards(
+        chat_id: int, user_id: int, bot: telebot.TeleBot,
+        markup_function=keyboards.get_base_card_inline
+):
+    cards = anki_engine.get_user_cards(user_id)
     for card in cards:
-        show_card(message, bot, card)
+        show_card(chat_id, bot, card, markup_function)
     if len(cards) == 0:
-        bot.send_message(message.chat.id, 'У вас пока нет карточек. Скорее создайте первую!')
+        bot.send_message(chat_id, 'У вас пока нет карточек. Скорее создайте первую!')
 
 
 def ask_edit_side(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
@@ -133,7 +143,7 @@ def edit_side(message: telebot.types.Message, bot: telebot.TeleBot, side_number,
         message.chat.id, 'Карточка успешно изменена',
         reply_markup=base_keyboards.get_base_markup()
     )
-    show_card(new_message, bot, card)
+    show_card(new_message.chat.id, bot, card)
 
 
 def proof_deletion(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):

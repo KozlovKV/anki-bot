@@ -21,7 +21,7 @@ def get_base_card_inline(card_id: int):
     return telebot.util.quick_markup({
         'Изменить': {'callback_data': f'{CardInlinesUrls.EDIT}{card_id}'},
         'Удалить': {'callback_data': f'{CardInlinesUrls.DELETE}{card_id}'},
-        'Связать с заголовками': {'callback_data': f'{CardInlinesUrls.RELATION}{card_id}'},
+        'Связи с заголовками': {'callback_data': f'{CardInlinesUrls.RELATION}{card_id}'},
     }, row_width=2)
 
 

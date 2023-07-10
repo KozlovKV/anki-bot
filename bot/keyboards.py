@@ -13,7 +13,6 @@ class BaseButtonsEnum(ExtendedEnum):
     ADD_LABEL = 'Добавить заголовок'
     SHOW_CARDS = 'Посмотреть мои карточки'
     SHOW_LABELS = 'Посмотреть мои заголовки'
-    ADD_RELATION = 'Связать карточку с заголовком'
     TRAIN = 'Тренироваться'
 
 

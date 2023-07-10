@@ -18,8 +18,16 @@ def create_by_instances(user_id, card, label, is_reversed=False) -> [CardLabelRe
     )
 
 
-def read_one(user_id, label_id, card_id):
+def read_one(user_id, label_id, card_id) -> [CardLabelRelation, bool]:
     return create(user_id, card_id, label_id)
+
+
+def switch_relation(user_id, card_id, label_id) -> [CardLabelRelation, bool]:
+    relation_with_flag = create(user_id, card_id, label_id)
+    if relation_with_flag[1]:
+        return relation_with_flag[0]
+    relation_with_flag[0].delete_instance()
+    return None
 
 
 def delete(user_id, card_id, label_id):

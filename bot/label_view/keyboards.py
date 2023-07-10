@@ -24,7 +24,7 @@ def get_base_label_inline(label_id: int):
         'Тренироваться', callback_data=f'{LabelInlinesUrls.TRAIN}{label_id}'
     ))
     inline.row(telebot.types.InlineKeyboardButton(
-        'Связать с карточками', callback_data=f'{LabelInlinesUrls.RELATION}{label_id}'
+        'Связи с карточками', callback_data=f'{LabelInlinesUrls.RELATION}{label_id}'
     ))
     inline.row(
         telebot.types.InlineKeyboardButton(

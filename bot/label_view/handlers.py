@@ -15,7 +15,7 @@ def bind_handlers(bot: telebot.TeleBot):
         pass_bot=True
     )
     bot.register_message_handler(
-        show_user_labels,
+        handle_user_id,
         regexp=base_keyboards.BaseButtonsEnum.SHOW_LABELS.value,
         pass_bot=True
     )
@@ -83,6 +83,10 @@ def create_label(message: telebot.types.Message, bot: telebot.TeleBot, is_privat
     show_label(message.chat.id, bot, label)
 
 
+def handle_user_id(message: telebot.types.Message, bot: telebot.TeleBot):
+    show_user_labels(message.chat.id, message.from_user.id, bot)
+
+
 def set_base_label_menu(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     label_id = int(call.data.split(' ')[1])
     bot.edit_message_reply_markup(
@@ -91,19 +95,25 @@ def set_base_label_menu(call: telebot.types.CallbackQuery, bot: telebot.TeleBot)
     )
 
 
-def show_label(chat_id: int, bot: telebot.TeleBot, label: anki_engine.Label):
+def show_label(
+        chat_id: int, bot: telebot.TeleBot, label: anki_engine.Label,
+        markup_function=keyboards.get_base_label_inline
+):
     bot.send_message(
         chat_id, str(label),
-        reply_markup=keyboards.get_base_label_inline(label.id)
+        reply_markup=markup_function(label.id)
     )
 
 
-def show_user_labels(message: telebot.types.Message, bot: telebot.TeleBot):
-    labels = anki_engine.get_user_labels(message.from_user.id)
+def show_user_labels(
+        chat_id: int, user_id: int, bot: telebot.TeleBot,
+        markup_function=keyboards.get_base_label_inline
+):
+    labels = anki_engine.get_user_labels(user_id)
     for label in labels:
-        show_label(message.chat.id, bot, label)
+        show_label(chat_id, bot, label, markup_function)
     if len(labels) == 0:
-        bot.send_message(message.chat.id, 'У вас пока нет заголовков. Создайте новый!')
+        bot.send_message(chat_id, 'У вас пока нет заголовков. Создайте новый!')
 
 
 def show_edit_inline(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):

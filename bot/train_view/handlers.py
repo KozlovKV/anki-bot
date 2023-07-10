@@ -2,7 +2,7 @@ import telebot
 
 import bot.keyboards as base_keyboards
 from bot import utils
-from bot.label_view import keyboards as label_keyboards
+import bot.label_view.keyboards as label_keyboards
 
 from core import anki_engine
 
