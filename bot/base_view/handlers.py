@@ -34,7 +34,7 @@ def send_settings_message(message: telebot.types.Message, bot: telebot.TeleBot):
 
 
 def show_menu(message: telebot.types.Message, bot: telebot.TeleBot):
-    bot.send_message(message.chat.id, 'Доступные действия', reply_markup=keyboards.get_base_markup())
+    bot.send_message(message.chat.id, messages.MENU, reply_markup=keyboards.get_base_markup())
 
 
 def send_info(message: telebot.types.Message, bot: telebot.TeleBot):

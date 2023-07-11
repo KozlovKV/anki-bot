@@ -8,6 +8,7 @@ import bot.card_view.keyboards as card_keyboards
 import bot.label_view.keyboards as label_keyboards
 
 from . import keyboards
+from . import messages
 
 from core import anki_engine
 
@@ -40,6 +41,7 @@ def bind_handlers(bot: telebot.TeleBot):
     )
 
 
+# TODO: Удалить блок ниже либо оставить только для админа
 def create_relation(message, bot: telebot.TeleBot, card_id: int, label_id: int):
     card = anki_engine.utils.user_protected_read(anki_engine.Card, message.from_user.id, card_id)
     label = anki_engine.utils.user_protected_read(anki_engine.Label, message.from_user.id, label_id)
@@ -57,6 +59,7 @@ def create_relation_from_command(message, bot: telebot.TeleBot):
     card_id = int(args[1])
     label_id = int(args[2])
     create_relation(message, bot, card_id, label_id)
+# TODO: конец блока на удаление
 
 
 def show_cards_for_chaining(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
@@ -65,15 +68,14 @@ def show_cards_for_chaining(call: telebot.types.CallbackQuery, bot: telebot.Tele
         anki_engine.Label, call.from_user.id, label_id_for_chaining
     )
     start_message = bot.send_message(
-        call.message.chat.id,
-        f'Нажимая на кнопки под карточками, вы можете создать или удалить связь с заголовком\n\n{str(label)}'
+        call.message.chat.id, messages.get_card_list_start_message(str(label))
     )
     card_handlers.show_user_cards(
         call.message.chat.id, call.from_user.id, bot,
         keyboards.get_label_switch_inline(label_id_for_chaining)
     )
-    end_message = bot.send_message(
-        call.message.chat.id, 'Конец списка карточек. Перейдите в начало по реплаю',
+    bot.send_message(
+        call.message.chat.id, messages.CARD_LIST_END_MESSAGE,
         reply_to_message_id=start_message.id
     )
 
@@ -101,9 +103,7 @@ def set_labels_inline_for_chaining(message: telebot.types.Message, bot: telebot.
     card = anki_engine.utils.user_protected_read(anki_engine.Card, user_id, card_id)
     labels = anki_engine.get_user_labels(user_id)
     inline = keyboards.get_card_switch_inline(card_id, labels)
-    start_message = bot.edit_message_text(
-        card.str_with_labels(), message.chat.id, message.id, reply_markup=inline
-    )
+    bot.edit_message_text(card.str_with_labels(), message.chat.id, message.id, reply_markup=inline)
 
 
 def handle_card_label_switching(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
