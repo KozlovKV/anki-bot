@@ -1,3 +1,4 @@
+import logging
 import os
 import telebot
 
@@ -22,6 +23,12 @@ def start():
     label_view.bind_handlers(bot)
     relations_view.bind_handlers(bot)
     train_view.bind_handlers(bot)
+
+    # requests logging
+    logging.basicConfig(filename='filename.log', level=logging.DEBUG,
+                        format=' %(asctime)s - %(levelname)s - %(message)s')
+    # bot logging
+    telebot.logger.setLevel('DEBUG')
 
     bot.infinity_polling()
 

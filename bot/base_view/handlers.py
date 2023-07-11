@@ -1,10 +1,14 @@
 import telebot
+import datetime
 
 from . import keyboards
 from . import messages
 
 
 def bind_handlers(bot: telebot.TeleBot):
+    # bot.register_message_handler(
+    #     base_log, func=lambda _: True
+    # )
     bot.register_message_handler(
         send_welcome, commands=['start'], pass_bot=True
     )
@@ -50,3 +54,8 @@ def send_help(message: telebot.types.Message, bot: telebot.TeleBot):
 
 def send_contacts(message: telebot.types.Message, bot: telebot.TeleBot):
     bot.send_message(message.chat.id, messages.CONTACT, reply_markup=keyboards.get_base_markup())
+
+
+def base_log(message: telebot.types.Message):
+    print(f'{datetime.datetime.now()}: user {message.from_user.id} in chat {message.chat.id} '
+          f'sent {message.text} with type {message.content_type}')
