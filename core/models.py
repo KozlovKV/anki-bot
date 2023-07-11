@@ -64,6 +64,9 @@ class Label(Base):
         relations = CardLabelRelation.select().join(Card).where(CardLabelRelation.label == self)
         return [relation.card for relation in relations]
 
+    def is_blocked_for_user(self, user_id: int):
+        return self.is_private and int(self.user_id) != user_id
+
     def dict(self):
         return {
             'id': self.id,

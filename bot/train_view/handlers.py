@@ -46,8 +46,37 @@ def handle_label_id_from_inline(call: telebot.types.CallbackQuery, bot: telebot.
     ask_count(call.message, bot, label_id)
 
 
+def check_int(message: telebot.types.Message, bot: telebot.TeleBot, value: any, error_redirect, *args_for_redirect):
+    try:
+        int_number = int(value)
+    except ValueError:
+        error_message = bot.send_message(
+            message.chat.id, messages.NAN_ERROR_MESSAGE,
+            reply_to_message_id=message.id
+        )
+        error_redirect(error_message, bot, *args_for_redirect)
+        return None
+    return int_number
+
+
 def handle_label_id_from_message(message: telebot.types.Message, bot: telebot.TeleBot):
-    label_id = int(message.text)
+    label_id = check_int(message, bot, message.text, ask_label_id)
+    if label_id is None:
+        return
+    try:
+        label = anki_engine.utils.empty_protected_read(anki_engine.Label, label_id)
+    except IndexError:
+        bot.send_message(
+            message.chat.id, messages.NOT_EXIST_LABEL_ID_MESSAGE,
+            reply_markup=base_keyboards.get_base_markup(), reply_to_message_id=message.id
+        )
+        return
+    if label.is_blocked_for_user(message.from_user.id):
+        bot.send_message(
+            message.chat.id, messages.BLOCKED_LABEL_MESSAGE,
+            reply_markup=base_keyboards.get_base_markup(), reply_to_message_id=message.id
+        )
+        return
     ask_count(message, bot, label_id)
 
 
@@ -59,9 +88,10 @@ def ask_count(message: telebot.types.Message, bot: telebot.TeleBot, label_id: in
     bot.register_for_reply(new_message, handle_count, bot, label_id)
 
 
-# TODO: Добавить валидацию по правам доступа, наличию номера и корректности ввода (число)
 def handle_count(message: telebot.types.Message, bot: telebot.TeleBot, label_id):
-    count = int(message.text)
+    count = check_int(message, bot, message.text, ask_count, label_id)
+    if count is None:
+        return
     start_train(message, bot, label_id, count)
 
 

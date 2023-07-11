@@ -26,7 +26,7 @@ def get_full_card_info_str(card_id):
 
 def get_cards_to_train(user_id, label_id, count=10):
     label = utils.empty_protected_read(Label, label_id)
-    if label.is_private and int(label.user_id) != user_id:
+    if label.is_blocked_for_user(user_id):
         raise PermissionError
     cards = label.get_cards()
     trainable_cards = []
