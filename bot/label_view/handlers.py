@@ -1,6 +1,6 @@
 import telebot
 
-import bot.keyboards as base_keyboards
+import bot.base_view.keyboards as base_keyboards
 from bot import utils
 
 from core import anki_engine

@@ -1,6 +1,6 @@
 import telebot
 
-import bot.keyboards as base_keyboards
+import bot.base_view.keyboards as base_keyboards
 from bot import utils
 import bot.label_view.keyboards as label_keyboards
 
@@ -83,8 +83,9 @@ def show_trainable_card(
         trainable_card: anki_engine.Card
 ):
     bot.send_message(
-        message.chat.id, f'{str(trainable_card)}\n\nНасколько хорошо вы помните эту карточку?',
-        reply_markup=keyboards.get_quality_markup(trainable_card.id)
+        message.chat.id,
+        f'{str(trainable_card.str_for_markdown_formatting)}\n\nНасколько хорошо вы помните эту карточку?',
+        reply_markup=keyboards.get_quality_markup(trainable_card.id),
     )
 
 

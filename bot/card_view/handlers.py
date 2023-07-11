@@ -3,10 +3,9 @@ import os
 
 from core import anki_engine
 
-import bot.keyboards as base_keyboards
+import bot.base_view.keyboards as base_keyboards
 from bot import utils
 
-import messages
 from . import keyboards
 
 os.path.join('../..')

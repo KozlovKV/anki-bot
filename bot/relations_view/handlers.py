@@ -1,11 +1,10 @@
 import telebot
 
-import bot.keyboards as base_keyboards
+import bot.base_view.keyboards as base_keyboards
 
 import bot.card_view.handlers as card_handlers
 import bot.card_view.keyboards as card_keyboards
 
-import bot.label_view.handlers as label_handlers
 import bot.label_view.keyboards as label_keyboards
 
 from . import keyboards

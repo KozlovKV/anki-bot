@@ -17,7 +17,7 @@ class Card(Base):
     side2 = CharField()
 
     def __str__(self):
-        return f'ID {self.id}: {self.side1} / {self.side2}'
+        return f'{self.side1}\n{"="*20}\n{self.side2}'
 
     def get_labels(self):
         relations = CardLabelRelation.select().join(Label).where(CardLabelRelation.card == self)
@@ -37,7 +37,7 @@ class Card(Base):
         labels = self.get_labels()
         if len(labels) == 0:
             return str(self)
-        return f'{str(self)}\n\nЗаголовки:\n' + "\n".join(map(str, labels))
+        return f'{str(self)}\n\nЗаголовки:\n- ' + "\n- ".join(map(str, labels))
 
     def dict(self):
         return {

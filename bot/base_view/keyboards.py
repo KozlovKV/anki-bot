@@ -11,8 +11,8 @@ class ExtendedEnum(Enum):
 class BaseButtonsEnum(ExtendedEnum):
     ADD_CARD = 'Добавить карточку'
     ADD_LABEL = 'Добавить заголовок'
-    SHOW_CARDS = 'Посмотреть мои карточки'
-    SHOW_LABELS = 'Посмотреть мои заголовки'
+    SHOW_CARDS = 'Мои карточки'
+    SHOW_LABELS = 'Мои заголовки'
     TRAIN = 'Тренироваться'
 
 
