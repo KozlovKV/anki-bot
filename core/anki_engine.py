@@ -1,4 +1,5 @@
 from datetime import timedelta, datetime
+from typing import List
 
 from .models import Card, Label, CardLabelRelation, MemNote
 from .models import DEFAULT_DAYS_BEFORE_REPEATING_FIRST
@@ -10,12 +11,12 @@ from .CRUD import cardLabelRelation as relation_controls
 from .CRUD import utils
 
 
-def get_user_cards(user_id: int) -> [Card]:
+def get_user_cards(user_id: int) -> List[Card]:
     card_select = Card.select().where(Card.user_id == user_id)
     return list(card_select)
 
 
-def get_user_labels(user_id: int) -> [Label]:
+def get_user_labels(user_id: int) -> List[Label]:
     labels_select = Label.select().where(Label.user_id == user_id)
     return list(labels_select)
 

@@ -1,18 +1,14 @@
 import logging
-import os
 import telebot
+import sys
 
-from config import TOKEN
+from .config import TOKEN
 
-import bot.base_view.handlers as base_view
-import bot.card_view.handlers as card_view
-import bot.label_view.handlers as label_view
-import bot.relations_view.handlers as relations_view
-import bot.train_view.handlers as train_view
-
-import bot.base_view.messages as base_messages
-
-os.path.join('..')
+from .base_view import handlers as base_view
+from .card_view import handlers as card_view
+from .label_view import handlers as label_view
+from .relations_view import handlers as relations_view
+from .train_view import handlers as train_view
 
 
 def start():
@@ -25,10 +21,13 @@ def start():
     train_view.bind_handlers(bot)
 
     # requests logging
-    logging.basicConfig(filename='filename.log', level=logging.DEBUG,
+    logging.basicConfig(filename='log/api.log', level=logging.DEBUG,
                         format=' %(asctime)s - %(levelname)s - %(message)s')
     # bot logging
-    telebot.logger.setLevel('DEBUG')
+    sys.stdout = open('./log/bot_main.log', 'w')
+    sys.stderr = open('./log/bot_error.log', 'w')
+    if len(sys.argv) > 1 and sys.argv[1] == '--debug':
+        telebot.logger.setLevel('DEBUG')
 
     bot.infinity_polling()
 
