@@ -14,6 +14,7 @@ if __name__ == '__main__':
 8. Начать тренировку по произвольному заголовку
 9. Удалить карточку
 10. Удалить заголовок
+11. Скопировать связи от одного заголовка другому
 Другой ввод - завершить сессию
 """))
 		if action == 1:
@@ -55,8 +56,13 @@ if __name__ == '__main__':
 			if len(train) == 0:
 				print('Нечего тренировать, можете отдохнуть )')
 		elif action == 9:
-			anki_engine.card_controls.delete(user_id, int(input('Введите индекс удаляемой карточки? ')))
+			anki_engine.card_controls.delete(user_id, int(input('Введите ID удаляемой карточки: ')))
 		elif action == 10:
-			anki_engine.label_controls.delete(user_id, int(input('Введите индекс удаляемого заголовка? ')))
+			anki_engine.label_controls.delete(user_id, int(input('Введите ID удаляемого заголовка: ')))
+		elif action == 11:
+			anki_engine.relation_controls.copy_relation_from_other_label(
+				user_id, int(input('ID заголовка-цели: ')),
+				int(input('ID заголовка для копирования: '))
+			)
 		else:
 			break
