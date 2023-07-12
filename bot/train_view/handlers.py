@@ -1,7 +1,10 @@
 import telebot
 
-import bot.base_view.keyboards as base_keyboards
 from bot import utils
+
+import bot.label_view.handlers as label_handlers
+
+import bot.base_view.keyboards as base_keyboards
 import bot.label_view.keyboards as label_keyboards
 
 from core import anki_engine
@@ -77,7 +80,8 @@ def handle_label_id_from_message(message: telebot.types.Message, bot: telebot.Te
             reply_markup=base_keyboards.get_base_markup(), reply_to_message_id=message.id
         )
         return
-    ask_count(message, bot, label_id)
+    label_message = label_handlers.show_label(message.chat.id, bot, label, lambda _: None)
+    ask_count(label_message, bot, label_id)
 
 
 def ask_count(message: telebot.types.Message, bot: telebot.TeleBot, label_id: int):

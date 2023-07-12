@@ -98,7 +98,7 @@ def show_label(
         chat_id: int, bot: telebot.TeleBot, label: anki_engine.Label,
         markup_function=keyboards.get_base_label_inline
 ):
-    bot.send_message(
+    return bot.send_message(
         chat_id, str(label),
         reply_markup=markup_function(label.id)
     )
