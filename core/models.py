@@ -1,10 +1,13 @@
 from datetime import timedelta, datetime
 from peewee import *
+import sys
+
 from . import config
 
-# DB_NAME = './database.db'
-# DB = SqliteDatabase(DB_NAME)
-DB = MySQLDatabase(**config.MYSQL_CONFIG)
+if '--sqlite' in sys.argv:
+    DB = SqliteDatabase('./database.db')
+else:
+    DB = MySQLDatabase(**config.MYSQL_CONFIG)
 
 
 class Base(Model):
