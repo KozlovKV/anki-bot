@@ -11,7 +11,7 @@ from . import messages
 
 def bind_handlers(bot: telebot.TeleBot):
     bot.register_message_handler(
-        get_private_flag,
+        ask_private_flag,
         regexp=base_keyboards.BaseButtonsEnum.ADD_LABEL.value,
         pass_bot=True
     )
@@ -57,7 +57,7 @@ def bind_handlers(bot: telebot.TeleBot):
     )
 
 
-def get_private_flag(message: telebot.types.Message, bot: telebot.TeleBot):
+def ask_private_flag(message: telebot.types.Message, bot: telebot.TeleBot):
     bot.send_message(
         message.chat.id, messages.IS_PUBLIC_MESSAGE,
         reply_markup=keyboards.get_yes_no_inline()
@@ -65,11 +65,13 @@ def get_private_flag(message: telebot.types.Message, bot: telebot.TeleBot):
 
 
 def ask_label_name(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
-    new_message = utils.send_message_with_force_reply_placeholder(
-        bot, call.message.chat.id, messages.LABEL_NAME_PLACEHOLDER,
-        messages.LABEL_NAME_MESSAGE
-    )
+    bot.delete_message(call.message.chat.id, call.message.id)
     is_private = 'private' in call.data
+    message_dict = messages.get_label_name_message_dict(is_private)
+    new_message = utils.send_message_with_force_reply_placeholder(
+        bot, call.message.chat.id, message_dict['placeholder'],
+        message_dict['message']
+    )
     bot.register_for_reply(new_message, create_label, bot, is_private)
 
 
