@@ -16,7 +16,7 @@ def bind_handlers(bot: telebot.TeleBot):
         pass_bot=True
     )
     bot.register_message_handler(
-        handle_user_id,
+        show_user_labels_by_message,
         regexp=base_keyboards.BaseButtonsEnum.SHOW_LABELS.value,
         pass_bot=True
     )
@@ -55,6 +55,11 @@ def bind_handlers(bot: telebot.TeleBot):
         func=lambda call: keyboards.LabelInlinesUrls.EDIT_NAME in call.data,
         pass_bot=True
     )
+    bot.register_callback_query_handler(
+        show_user_labels_by_query,
+        func=lambda call: keyboards.LabelInlinesUrls.CHOOSE_LABELS in call.data,
+        pass_bot=True
+    )
 
 
 def ask_private_flag(message: telebot.types.Message, bot: telebot.TeleBot):
@@ -84,13 +89,32 @@ def create_label(message: telebot.types.Message, bot: telebot.TeleBot, is_privat
     show_label(message.chat.id, bot, label)
 
 
-def handle_user_id(message: telebot.types.Message, bot: telebot.TeleBot):
-    show_user_labels(message.chat.id, message.from_user.id, bot)
+def show_user_labels_by_message(message: telebot.types.Message, bot: telebot.TeleBot):
+    bot.send_message(
+        message.chat.id, messages.CHOOSE_LABEL,
+        reply_markup=keyboards.get_labels_as_inline(
+            anki_engine.get_user_labels(message.from_user.id)
+        )
+    )
+    bot.delete_message(message.chat.id, message.id)
+
+
+def show_user_labels_by_query(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+    print(call.message.text)
+    bot.edit_message_text(
+        messages.CHOOSE_LABEL,
+        call.message.chat.id, call.message.id,
+        reply_markup=keyboards.get_labels_as_inline(
+            anki_engine.get_user_labels(call.from_user.id)
+        )
+    )
 
 
 def set_base_label_menu(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     label_id = int(call.data.split(' ')[1])
-    bot.edit_message_reply_markup(
+    label = anki_engine.utils.empty_protected_read(anki_engine.Label, label_id)
+    bot.edit_message_text(
+        str(label),
         call.message.chat.id, call.message.id,
         reply_markup=keyboards.get_base_label_inline(label_id)
     )

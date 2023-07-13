@@ -3,6 +3,8 @@ IS_PUBLIC_MESSAGE = 'Сделать доступной тренировку по
 
 CREATE_LABEL_SUCCESS = 'Заголовок успешно создан'
 
+CHOOSE_LABEL = 'Выберите заголовок для работы с ним'
+
 EMPTY_LABELS_LIST = 'У вас пока нет заголовков. Создайте новый!'
 
 EDIT_LABEL_NAME_PLACEHOLDER = 'Новое название заголовка'

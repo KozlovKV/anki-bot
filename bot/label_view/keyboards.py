@@ -5,6 +5,7 @@ from enum import Enum
 class LabelInlinesUrls:
     BASE_MENU = '/label/base '
 
+    CHOOSE_LABELS = '/label/choose '
     TRAIN = '/label/train '
     EDIT = '/label/edit '
     DELETE = '/label/delete '
@@ -17,6 +18,15 @@ class LabelInlinesUrls:
 
     EDIT_PERMISSION = '/label/edit/permission '
     EDIT_NAME = '/label/edit/name '
+
+
+def get_labels_as_inline(labels):
+    inline_dict = {}
+    for label in labels:
+        inline_dict[str(label)] = {
+            'callback_data': f'{LabelInlinesUrls.BASE_MENU}{label.id}'
+        }
+    return telebot.util.quick_markup(inline_dict, row_width=1)
 
 
 def get_base_label_inline(label_id: int):
@@ -40,6 +50,9 @@ def get_base_label_inline(label_id: int):
             'Удалить', callback_data=f'{LabelInlinesUrls.DELETE}{label_id}'
         )
     )
+    inline.row(telebot.types.InlineKeyboardButton(
+        'К выбору заголовка', callback_data=f'{LabelInlinesUrls.CHOOSE_LABELS}{label_id}'
+    ))
     return inline
 
 
