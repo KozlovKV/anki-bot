@@ -1,23 +1,21 @@
-from enum import Enum
 import telebot
 
 
-class ExtendedEnum(Enum):
-    @classmethod
-    def list(cls):
-        return list(map(lambda c: c.value, cls))
+class BaseMenuUrls:
+    BASE_MENU = '/menu '
+
+    CREATE_CARD = '/card/create '
+    CREATE_LABEL = '/label/create '
+    USER_CARDS = '/card/show '
+    USER_LABELS = '/label/show '
+    TRAIN = '/train/start '
 
 
-class BaseButtonsEnum(ExtendedEnum):
-    ADD_CARD = 'Добавить карточку'
-    ADD_LABEL = 'Добавить заголовок'
-    SHOW_CARDS = 'Мои карточки'
-    SHOW_LABELS = 'Мои заголовки'
-    TRAIN = 'Тренироваться'
-
-
-def get_base_markup():
-    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True, row_width=2)
-    markup.add(*BaseButtonsEnum.list())
-    return markup
-
+def get_base_inline_menu():
+    return telebot.util.quick_markup({
+        'Добавить карточку': {'callback_data': BaseMenuUrls.CREATE_CARD},
+        'Добавить заголовок': {'callback_data': BaseMenuUrls.CREATE_LABEL},
+        'Мои карточки': {'callback_data': BaseMenuUrls.USER_CARDS},
+        'Мои заголовки': {'callback_data': BaseMenuUrls.USER_LABELS},
+        'Тренироваться': {'callback_data': BaseMenuUrls.TRAIN},
+    }, row_width=2)

@@ -1,5 +1,6 @@
 import telebot
-from enum import Enum
+
+from bot.base_view import keyboards as base_keyboards
 
 
 class CardInlinesUrls:
@@ -22,6 +23,7 @@ def get_base_card_inline(card_id: int):
         'Изменить': {'callback_data': f'{CardInlinesUrls.EDIT}{card_id}'},
         'Удалить': {'callback_data': f'{CardInlinesUrls.DELETE}{card_id}'},
         'Настроить связи': {'callback_data': f'{CardInlinesUrls.RELATION}{card_id}'},
+        'В главное меню': {'callback_data': base_keyboards.BaseMenuUrls.BASE_MENU}
     }, row_width=2)
 
 

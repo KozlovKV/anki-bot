@@ -1,11 +1,11 @@
 import telebot
-from enum import Enum
+
+from bot.base_view import keyboards as base_keyboards
 
 
 class LabelInlinesUrls:
     BASE_MENU = '/label/base '
 
-    CHOOSE_LABELS = '/label/choose '
     TRAIN = '/label/train '
     EDIT = '/label/edit '
     DELETE = '/label/delete '
@@ -14,7 +14,7 @@ class LabelInlinesUrls:
 
     DELETE_PROOF = '/label/delete/proof '
 
-    CREATE_PERMISSION = '/label/create '
+    CREATE_PERMISSION = '/label/create/permission '
 
     EDIT_PERMISSION = '/label/edit/permission '
     EDIT_NAME = '/label/edit/name '
@@ -51,7 +51,7 @@ def get_base_label_inline(label_id: int):
         )
     )
     inline.row(telebot.types.InlineKeyboardButton(
-        'К выбору заголовка', callback_data=f'{LabelInlinesUrls.CHOOSE_LABELS}{label_id}'
+        'В главное меню', callback_data=base_keyboards.BaseMenuUrls.BASE_MENU
     ))
     return inline
 

@@ -3,7 +3,10 @@ import os
 
 from core import anki_engine
 
-import bot.base_view.keyboards as base_keyboards
+from bot.base_view import handlers as base_handlers
+
+from bot.base_view import keyboards as base_keyboards
+
 from bot import utils
 
 from . import keyboards
@@ -13,14 +16,14 @@ os.path.join('../..')
 
 
 def bind_handlers(bot: telebot.TeleBot):
-    bot.register_message_handler(
+    bot.register_callback_query_handler(
         ask_first_card_side,
-        regexp=base_keyboards.BaseButtonsEnum.ADD_CARD.value,
+        func=lambda call: base_keyboards.BaseMenuUrls.CREATE_CARD in call.data,
         pass_bot=True
     )
-    bot.register_message_handler(
+    bot.register_callback_query_handler(
         handle_user_id,
-        regexp=base_keyboards.BaseButtonsEnum.SHOW_CARDS.value,
+        func=lambda call: base_keyboards.BaseMenuUrls.USER_CARDS in call.data,
         pass_bot=True
     )
     bot.register_callback_query_handler(
@@ -50,9 +53,10 @@ def bind_handlers(bot: telebot.TeleBot):
     )
 
 
-def ask_first_card_side(message, bot: telebot.TeleBot):
+def ask_first_card_side(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+    bot.delete_message(call.message.chat.id, call.message.id)
     new_message = utils.send_message_with_force_reply_placeholder(
-        bot, message.chat.id, messages.FIRST_SIDE_PLACEHOLDER,
+        bot, call.message.chat.id, messages.FIRST_SIDE_PLACEHOLDER,
         messages.FIRST_SIDE_MESSAGE
     )
     bot.register_for_reply(new_message, ask_second_card_side, bot)
@@ -67,16 +71,12 @@ def ask_second_card_side(message, bot: telebot.TeleBot):
 
 
 def create_card(message: telebot.types.Message, bot: telebot.TeleBot, side1: str):
-    new_message = bot.send_message(
-        message.chat.id, messages.CREATE_CARD_SUCCESS,
-        reply_markup=base_keyboards.get_base_markup()
-    )
     card = anki_engine.card_controls.create(message.from_user.id, side1, message.text)
-    show_card(new_message.chat.id, bot, card)
+    show_card(message.chat.id, bot, card)
 
 
-def handle_user_id(message: telebot.types.Message, bot: telebot.TeleBot):
-    show_user_cards(message.chat.id, message.from_user.id, bot)
+def handle_user_id(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+    show_user_cards(call.message.chat.id, call.from_user.id, bot)
 
 
 def show_card(
@@ -117,13 +117,13 @@ def ask_edit_side(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
 
 
 def ask_new_side_text(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+    bot.delete_message(call.message.chat.id, call.message.id)
     data = call.data.split(' ')
     side_number = int(data[0].split('/')[-1])
     card_id = int(data[1])
     new_message = utils.send_message_with_force_reply_placeholder(
         bot, call.message.chat.id, messages.get_edit_side_placeholder(side_number),
         messages.get_edit_side_message(side_number),
-        reply_to_message_id=call.message.id
     )
     bot.register_for_reply(new_message, edit_side, bot, side_number, card_id)
 
@@ -135,11 +135,7 @@ def edit_side(message: telebot.types.Message, bot: telebot.TeleBot, side_number,
     else:
         card.side2 = message.text
     card.save()
-    new_message = bot.send_message(
-        message.chat.id, messages.EDIT_CARD_SUCCESS,
-        reply_markup=base_keyboards.get_base_markup()
-    )
-    show_card(new_message.chat.id, bot, card)
+    show_card(message.chat.id, bot, card)
 
 
 def proof_deletion(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
@@ -154,3 +150,4 @@ def delete_card(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     bot.delete_message(call.message.chat.id, call.message.id)
     card_id = int(call.data.split(' ')[1])
     anki_engine.card_controls.delete(call.from_user.id, card_id)
+    base_handlers.show_menu(call.message, bot)
