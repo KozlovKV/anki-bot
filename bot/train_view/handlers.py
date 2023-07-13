@@ -30,6 +30,11 @@ def bind_handlers(bot: telebot.TeleBot):
         pass_bot=True
     )
     bot.register_callback_query_handler(
+        show_second_side,
+        func=lambda call: keyboards.TrainInlineUrls.SECOND_SIDE in call.data,
+        pass_bot=True
+    )
+    bot.register_callback_query_handler(
         recalculate_card,
         func=lambda call: keyboards.TrainInlineUrls.RECALCULATE in call.data,
         pass_bot=True
@@ -116,8 +121,8 @@ def show_trainable_card(
         trainable_card: anki_engine.Card
 ):
     bot.send_message(
-        message.chat.id, messages.get_trainable_card_new_message(str(trainable_card)),
-        reply_markup=keyboards.get_quality_markup(trainable_card.id),
+        message.chat.id, messages.get_trainable_card_new_message(str(trainable_card.side1)),
+        reply_markup=keyboards.get_show_second_side_markup(trainable_card.id),
     )
 
 
@@ -139,6 +144,16 @@ def train(
     bot.send_message(
         message.chat.id, messages.TRAIN_LIST_END_MESSAGE,
         reply_to_message_id=start_message.id, reply_markup=base_keyboards.get_base_markup()
+    )
+
+
+def show_second_side(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+    card_id = int(call.data.split(' ')[1])
+    card = anki_engine.utils.empty_protected_read(anki_engine.Card, card_id)
+    bot.edit_message_text(
+        messages.get_trainable_card_new_message(str(card)),
+        call.message.chat.id, call.message.id,
+        reply_markup=keyboards.get_quality_markup(card_id)
     )
 
 

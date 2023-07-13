@@ -1,5 +1,7 @@
 import telebot
 
+from bot import utils
+
 import bot.base_view.keyboards as base_keyboards
 
 import bot.card_view.handlers as card_handlers
@@ -127,14 +129,11 @@ def handle_card_label_switching(call: telebot.types.CallbackQuery, bot: telebot.
 
 def ask_from_label_id(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     from_label_id = int(call.data.split(' ')[1])
+    labels = anki_engine.get_user_labels(call.from_user.id)
     bot.send_message(
         call.message.chat.id, messages.COPY_RELATIONS_START_MESSAGE,
-        reply_to_message_id=call.message.id
-    )
-    label_handlers.show_user_labels(
-        call.message.chat.id, call.from_user.id, bot,
-        keyboards.get_label_copy_inline(from_label_id),
-        lambda label: label.id != from_label_id
+        reply_to_message_id=call.message.id,
+        reply_markup=keyboards.get_label_copy_inline(from_label_id, labels)
     )
 
 
@@ -142,6 +141,8 @@ def handle_to_from_label_id(call: telebot.types.CallbackQuery, bot: telebot.Tele
     data = call.data.split(' ')
     from_label_id = int(data[1])
     to_label_id = int(data[2])
+    bot.delete_message(call.message.chat.id, call.message.message_id)
+
     anki_engine.relation_controls.copy_relation_from_other_label(call.from_user.id, to_label_id, from_label_id)
     to_label = anki_engine.utils.user_protected_read(anki_engine.Label, call.from_user.id, to_label_id)
     from_label = anki_engine.utils.user_protected_read(anki_engine.Label, call.from_user.id, from_label_id)
