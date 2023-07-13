@@ -9,6 +9,7 @@ class LabelInlinesUrls:
     EDIT = '/label/edit '
     DELETE = '/label/delete '
     RELATION = '/label/relations '
+    COPY_RELATIONS_FROM = '/label/relations/copy '
 
     DELETE_PROOF = '/label/delete/proof '
 
@@ -23,9 +24,14 @@ def get_base_label_inline(label_id: int):
     inline.row(telebot.types.InlineKeyboardButton(
         'Тренироваться', callback_data=f'{LabelInlinesUrls.TRAIN}{label_id}'
     ))
-    inline.row(telebot.types.InlineKeyboardButton(
-        'Настроить связи', callback_data=f'{LabelInlinesUrls.RELATION}{label_id}'
-    ))
+    inline.row(
+        telebot.types.InlineKeyboardButton(
+            'Связи с карточками', callback_data=f'{LabelInlinesUrls.RELATION}{label_id}'
+        ),
+        telebot.types.InlineKeyboardButton(
+            'Скопировать связи', callback_data=f'{LabelInlinesUrls.COPY_RELATIONS_FROM}{label_id}'
+        )
+    )
     inline.row(
         telebot.types.InlineKeyboardButton(
             'Изменить', callback_data=f'{LabelInlinesUrls.EDIT}{label_id}'

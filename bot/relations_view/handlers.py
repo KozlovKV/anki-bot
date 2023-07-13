@@ -5,6 +5,7 @@ import bot.base_view.keyboards as base_keyboards
 import bot.card_view.handlers as card_handlers
 import bot.card_view.keyboards as card_keyboards
 
+import bot.label_view.handlers as label_handlers
 import bot.label_view.keyboards as label_keyboards
 
 from . import keyboards
@@ -37,6 +38,16 @@ def bind_handlers(bot: telebot.TeleBot):
     bot.register_callback_query_handler(
         handle_card_label_switching,
         func=lambda call: keyboards.RelationInlinesUrls.SWITCH_CARD in call.data,
+        pass_bot=True
+    )
+    bot.register_callback_query_handler(
+        ask_from_label_id,
+        func=lambda call: label_keyboards.LabelInlinesUrls.COPY_RELATIONS_FROM in call.data,
+        pass_bot=True
+    )
+    bot.register_callback_query_handler(
+        handle_to_from_label_id,
+        func=lambda call: keyboards.RelationInlinesUrls.COPY_RELATIONS_TO in call.data,
         pass_bot=True
     )
 
@@ -113,3 +124,28 @@ def handle_card_label_switching(call: telebot.types.CallbackQuery, bot: telebot.
     anki_engine.relation_controls.switch_relation(call.from_user.id, card_id, label_id)
     set_labels_inline_for_chaining(call.message, bot, card_id, call.from_user.id)
 
+
+def ask_from_label_id(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+    from_label_id = int(call.data.split(' ')[1])
+    bot.send_message(
+        call.message.chat.id, messages.COPY_RELATIONS_START_MESSAGE,
+        reply_to_message_id=call.message.id
+    )
+    label_handlers.show_user_labels(
+        call.message.chat.id, call.from_user.id, bot,
+        keyboards.get_label_copy_inline(from_label_id),
+        lambda label: label.id != from_label_id
+    )
+
+
+def handle_to_from_label_id(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+    data = call.data.split(' ')
+    from_label_id = int(data[1])
+    to_label_id = int(data[2])
+    anki_engine.relation_controls.copy_relation_from_other_label(call.from_user.id, to_label_id, from_label_id)
+    to_label = anki_engine.utils.user_protected_read(anki_engine.Label, call.from_user.id, to_label_id)
+    from_label = anki_engine.utils.user_protected_read(anki_engine.Label, call.from_user.id, from_label_id)
+    bot.send_message(
+        call.message.chat.id, messages.get_copy_relations_success(to_label.name, from_label.name),
+        reply_markup=base_keyboards.get_base_markup()
+    )

@@ -108,9 +108,9 @@ def show_label(
 
 def show_user_labels(
         chat_id: int, user_id: int, bot: telebot.TeleBot,
-        markup_function=keyboards.get_base_label_inline
+        markup_function=keyboards.get_base_label_inline, filter_function=lambda label: True
 ):
-    labels = anki_engine.get_user_labels(user_id)
+    labels = list(filter(filter_function, anki_engine.get_user_labels(user_id)))
     for label in labels:
         show_label(chat_id, bot, label, markup_function)
     if len(labels) == 0:

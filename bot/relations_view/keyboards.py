@@ -7,10 +7,20 @@ class RelationInlinesUrls:
     SWITCH_LABEL = '/relation/label/switch '
     SWITCH_CARD = '/relation/card/switch '
 
+    COPY_RELATIONS_TO = '/relations/labels/copy '
+
 
 def get_label_switch_inline(label_id):
     return lambda card_id: telebot.util.quick_markup({
         'Связать / отвязать': {'callback_data': f'{RelationInlinesUrls.SWITCH_LABEL}{label_id} {card_id}'}
+    })
+
+
+def get_label_copy_inline(from_label_id):
+    return lambda to_label_id: telebot.util.quick_markup({
+        'Добавить': {
+            'callback_data': f'{RelationInlinesUrls.COPY_RELATIONS_TO}{from_label_id} {to_label_id}'
+        }
     })
 
 
