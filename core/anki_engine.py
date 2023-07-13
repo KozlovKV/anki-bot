@@ -40,6 +40,21 @@ def get_cards_to_train(user_id, label_id, count=10):
     return trainable_cards
 
 
+def get_cards_ids_to_train(user_id, label_id, count=10):
+    label = utils.empty_protected_read(Label, label_id)
+    if label.is_blocked_for_user(user_id):
+        raise PermissionError
+    cards = label.get_cards()
+    trainable_cards_ids = []
+    for card in cards:
+        if count <= 0:
+            break
+        if card.can_be_trained(user_id):
+            trainable_cards_ids.append(card.id)
+            count -= 1
+    return trainable_cards_ids
+
+
 RESET_LIMIT = 3
 MAX_QUALITY = 5
 

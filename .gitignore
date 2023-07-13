@@ -1,6 +1,8 @@
 bot/config.py
 core/config.py
 
+.state-save/
+
 .idea
 
 *.db

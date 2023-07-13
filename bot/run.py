@@ -29,6 +29,8 @@ def start():
     if '--debug' in sys.argv:
         telebot.logger.setLevel('DEBUG')
 
+    bot.enable_saving_states()
+
     bot.infinity_polling()
 
 

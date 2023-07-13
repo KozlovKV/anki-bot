@@ -19,9 +19,10 @@ def get_train_list_start_message(count: int):
     return f'Найдено карточек для тренировки: {count}'
 
 
-def get_trainable_card_new_message(card_text: str):
-    return f'{card_text}\n\nНасколько хорошо вы помните эту карточку?'
+def get_trainable_card_new_message(count, card_text: str):
+    return f'Осталось карточек: {count}\n\nПервая сторона карточки:{card_text}' \
+           f'\n\nНасколько хорошо вы помните эту карточку?'
 
 
-def get_trainable_card_trained_message(old_message, quality):
-    return old_message + f'\n\n{quality} - ответ записан'
+def get_trainable_card_main_message(count, card_text: str):
+    return f'Осталось карточек: {count}\n\n{card_text}\n\nНасколько хорошо вы помните эту карточку?'

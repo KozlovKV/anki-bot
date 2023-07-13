@@ -11,6 +11,7 @@ from core import anki_engine
 
 from . import keyboards
 from . import messages
+from . import state
 
 
 def bind_handlers(bot: telebot.TeleBot):
@@ -113,48 +114,40 @@ def start_train_from_command(message: telebot.types.Message, bot: telebot.TeleBo
 
 def start_train(message: telebot.types.Message, bot: telebot.TeleBot, label_id, count):
     train_list = anki_engine.get_cards_to_train(message.from_user.id, label_id, count)
-    train(message, bot, train_list)
-
-
-def show_trainable_card(
-        message: telebot.types.Message, bot: telebot.TeleBot,
-        trainable_card: anki_engine.Card
-):
-    bot.send_message(
-        message.chat.id, messages.get_trainable_card_new_message(str(trainable_card.side1)),
-        reply_markup=keyboards.get_show_second_side_markup(trainable_card.id),
-    )
-
-
-def train(
-        message: telebot.types.Message, bot: telebot.TeleBot,  train_list
-):
-    if len(train_list) == 0:
+    length = len(train_list)
+    if length == 0:
         bot.send_message(
             message.chat.id, messages.EMPTY_TRAIN_LIST,
             reply_to_message_id=message.id, reply_markup=base_keyboards.get_base_markup()
         )
-        return
-    start_message = bot.send_message(
-        message.chat.id, messages.get_train_list_start_message(len(train_list)),
-        reply_to_message_id=message.id
-    )
-    for card in train_list:
-        show_trainable_card(message, bot, card)
-    bot.send_message(
-        message.chat.id, messages.TRAIN_LIST_END_MESSAGE,
-        reply_to_message_id=start_message.id, reply_markup=base_keyboards.get_base_markup()
-    )
+    else:
+        bot.set_state(message.from_user.id, state.TrainState.train_list)
+        bot.set_state(message.from_user.id, state.TrainState.train_list_length)
+        with bot.retrieve_data(message.from_user.id) as data:
+            data['train_list'] = train_list
+            data['train_list_length'] = length
+        show_next_trainable_card(message.chat.id, message.from_user.id, bot)
+
+
+def show_next_trainable_card(
+        chat_id: int, user_id: int, bot: telebot.TeleBot
+):
+    with bot.retrieve_data(user_id) as data:
+        card = data['train_list'][0]
+        bot.send_message(
+            chat_id, messages.get_trainable_card_new_message(data['train_list_length'], str(card.side1)),
+            reply_markup=keyboards.get_show_second_side_markup(card.id),
+        )
 
 
 def show_second_side(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
-    card_id = int(call.data.split(' ')[1])
-    card = anki_engine.utils.empty_protected_read(anki_engine.Card, card_id)
-    bot.edit_message_text(
-        messages.get_trainable_card_new_message(str(card)),
-        call.message.chat.id, call.message.id,
-        reply_markup=keyboards.get_quality_markup(card_id)
-    )
+    with bot.retrieve_data(call.from_user.id) as data:
+        card = data['train_list'][0]
+        bot.edit_message_text(
+            messages.get_trainable_card_main_message(data['train_list_length'], str(card)),
+            call.message.chat.id, call.message.id,
+            reply_markup=keyboards.get_quality_markup(card.id)
+        )
 
 
 def recalculate_card(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
@@ -162,5 +155,10 @@ def recalculate_card(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     card_id = int(data[1])
     quality = int(data[2])
     anki_engine.recalculate_memory_note(call.from_user.id, card_id, quality)
-    new_text_message = messages.get_trainable_card_trained_message(call.message.text, quality)
-    bot.edit_message_text(new_text_message, call.message.chat.id, call.message.id, reply_markup=None)
+    bot.delete_message(call.message.chat.id, call.message.id)
+    with bot.retrieve_data(call.from_user.id) as data:
+        data['train_list'] = data['train_list'][1:]
+        data['train_list_length'] -= 1
+        length = data['train_list_length']
+    if length > 0:
+        show_next_trainable_card(call.message.chat.id, call.from_user.id, bot)
