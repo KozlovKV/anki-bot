@@ -3,6 +3,14 @@ from typing import Optional
 import telebot
 
 
+def check_int(value: any):
+    try:
+        int_number = int(value)
+    except ValueError:
+        return None
+    return int_number
+
+
 def delete_message_by_handling(
         new_message: telebot.types.Message, bot: telebot.TeleBot,
         message_for_deleting: telebot.types.Message, timeout=5

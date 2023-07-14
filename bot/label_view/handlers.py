@@ -1,39 +1,34 @@
 import telebot
 
-from bot.base_view import handlers as base_handlers
-
 import bot.base_view.keyboards as base_keyboards
-from bot import utils
 
-from core import anki_engine
-
+from .views import LabelView
 from . import keyboards
-from . import messages
 
 
 def bind_handlers(bot: telebot.TeleBot):
     bot.register_callback_query_handler(
-        ask_private_flag,
+        handle_create_label_query,
         func=lambda call: base_keyboards.BaseMenuUrls.CREATE_LABEL in call.data,
         pass_bot=True
     )
     bot.register_callback_query_handler(
-        show_user_labels,
+        handle_show_user_labels_query,
         func=lambda call: base_keyboards.BaseMenuUrls.USER_LABELS in call.data,
         pass_bot=True
     )
     bot.register_callback_query_handler(
-        set_base_label_menu,
+        handle_show_label_query,
         func=lambda call: keyboards.LabelInlinesUrls.BASE_MENU in call.data,
         pass_bot=True
     )
     bot.register_callback_query_handler(
-        ask_label_name,
+        handle_create_label_permission_query,
         func=lambda call: keyboards.LabelInlinesUrls.CREATE_PERMISSION in call.data,
         pass_bot=True
     )
     bot.register_callback_query_handler(
-        proof_deletion,
+        handle_simple_label_delete_query,
         func=lambda call: keyboards.LabelInlinesUrls.DELETE in call.data,
         pass_bot=True
     )
@@ -43,119 +38,74 @@ def bind_handlers(bot: telebot.TeleBot):
         pass_bot=True
     )
     bot.register_callback_query_handler(
-        show_edit_inline,
+        handle_edit_label_query,
         func=lambda call: keyboards.LabelInlinesUrls.EDIT in call.data,
         pass_bot=True
     )
     bot.register_callback_query_handler(
-        switch_label_permission,
+        handle_switch_label_permission_query,
         func=lambda call: keyboards.LabelInlinesUrls.EDIT_PERMISSION in call.data,
         pass_bot=True
     )
     bot.register_callback_query_handler(
-        ask_new_label_name,
+        handle_edit_label_name_query,
         func=lambda call: keyboards.LabelInlinesUrls.EDIT_NAME in call.data,
         pass_bot=True
     )
 
 
-def ask_private_flag(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
-    bot.edit_message_text(
-        messages.IS_PUBLIC_MESSAGE, call.message.chat.id, call.message.id,
-        reply_markup=keyboards.get_yes_no_inline()
-    )
+def handle_create_label_query(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+    LabelView(bot, call=call).ask_private_flag()
 
 
-def ask_label_name(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
-    bot.delete_message(call.message.chat.id, call.message.id)
+def handle_create_label_permission_query(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     is_private = 'private' in call.data
-    message_dict = messages.get_label_name_message_dict(is_private)
-    new_message = utils.send_message_with_force_reply_placeholder(
-        bot, call.message.chat.id, message_dict['placeholder'],
-        message_dict['message']
-    )
-    bot.register_for_reply(new_message, create_label, bot, is_private)
-
-
-def create_label(message: telebot.types.Message, bot: telebot.TeleBot, is_private: bool):
-    label = anki_engine.label_controls.create(message.from_user.id, message.text, is_private)
-    show_label(message.chat.id, bot, label)
-
-
-def show_user_labels(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
-    bot.edit_message_text(
-        messages.CHOOSE_LABEL,
-        call.message.chat.id, call.message.id,
-        reply_markup=keyboards.get_labels_as_inline(
-            anki_engine.get_user_labels(call.from_user.id)
-        )
+    bot.register_for_reply(
+        LabelView(bot, call=call).ask_label_name(is_private),
+        handle_create_label_name_reply, bot, is_private
     )
 
 
-def set_base_label_menu(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+def handle_create_label_name_reply(message: telebot.types.Message, bot: telebot.TeleBot, is_private: bool):
+    LabelView(bot, message=message).create_label(is_private, message.text)
+
+
+def handle_show_user_labels_query(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+    LabelView(bot, call=call).show_user_labels()
+
+
+def handle_show_label_query(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     label_id = int(call.data.split(' ')[1])
-    label = anki_engine.utils.empty_protected_read(anki_engine.Label, label_id)
-    bot.edit_message_text(
-        str(label),
-        call.message.chat.id, call.message.id,
-        reply_markup=keyboards.get_base_label_inline(label_id)
-    )
+    LabelView(bot, call=call).set_base_label_inline(label_id)
 
 
-def show_label(
-        chat_id: int, bot: telebot.TeleBot, label: anki_engine.Label,
-        markup_function=keyboards.get_base_label_inline
-):
-    return bot.send_message(
-        chat_id, str(label),
-        reply_markup=markup_function(label.id)
-    )
-
-
-def show_edit_inline(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+def handle_edit_label_query(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     label_id = int(call.data.split(' ')[1])
-    bot.edit_message_reply_markup(
-        call.message.chat.id, call.message.id,
-        reply_markup=keyboards.get_edit_label_inline(label_id)
-    )
+    LabelView(bot, call=call).set_edit_label_inline(label_id)
 
 
-def switch_label_permission(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
-    user_id = call.from_user.id
+def handle_switch_label_permission_query(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     label_id = int(call.data.split(' ')[1])
-    label = anki_engine.label_controls.switch_permission(user_id, label_id)
-    bot.edit_message_text(
-        str(label), call.message.chat.id, call.message.id,
-        reply_markup=keyboards.get_base_label_inline(label_id)
-    )
+    LabelView(bot, call=call).switch_label_permission(label_id)
 
 
-def ask_new_label_name(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
-    bot.delete_message(call.message.chat.id, call.message.id)
+def handle_edit_label_name_query(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     label_id = int(call.data.split(' ')[1])
-    new_message = utils.send_message_with_force_reply_placeholder(
-        bot, call.message.chat.id, messages.EDIT_LABEL_NAME_PLACEHOLDER,
-        messages.EDIT_LABEL_NAME_MESSAGE
+    bot.register_for_reply(
+        LabelView(bot, call=call).ask_new_label_name(),
+        handle_edit_label_name_reply, bot, label_id
     )
-    bot.register_for_reply(new_message, edit_label_name, bot, label_id)
 
 
-def edit_label_name(message: telebot.types.Message, bot: telebot.TeleBot, label_id):
-    label = anki_engine.label_controls.update(message.from_user.id, label_id, message.text)
-    label.save()
-    show_label(message.chat.id, bot, label)
+def handle_edit_label_name_reply(message: telebot.types.Message, bot: telebot.TeleBot, label_id):
+    LabelView(bot, message=message).edit_label_name(label_id, message.text)
 
 
-def proof_deletion(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+def handle_simple_label_delete_query(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     label_id = int(call.data.split(' ')[1])
-    bot.edit_message_reply_markup(
-        call.message.chat.id, call.message.id,
-        reply_markup=keyboards.get_delete_label_inline(label_id)
-    )
+    LabelView(bot, call=call).ask_label_deletion_proof(label_id)
 
 
 def delete_label(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
-    bot.delete_message(call.message.chat.id, call.message.id)
     label_id = int(call.data.split(' ')[1])
-    anki_engine.label_controls.delete(call.from_user.id, label_id)
-    base_handlers.show_menu(call.message, bot)
+    LabelView(bot, call=call).delete_label(label_id)

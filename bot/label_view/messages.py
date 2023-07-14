@@ -11,6 +11,7 @@ EDIT_LABEL_NAME_PLACEHOLDER = 'Новое название заголовка'
 EDIT_LABEL_NAME_MESSAGE = 'Введите новое название заголовка ответом на это сообщение (Работает один раз)'
 EDIT_LABEL_NAME_SUCCESS = 'Название заголовка изменено'
 
+LABEL_DELETED = 'Заголовок удалён'
 
 def get_label_name_message_dict(is_private: bool):
     is_private_str = 'приватного' if is_private else 'публичного'

@@ -42,7 +42,9 @@ class Card(Base):
         labels = self.get_labels()
         if len(labels) == 0:
             return str(self)
-        return f'{str(self)}\n\nЗаголовки:\n- ' + "\n- ".join(map(str, labels))
+        return f'{str(self)}\n\nЗаголовки:\n- ' + "\n- ".join(
+            [label.full_str for label in labels]
+        )
 
     def dict(self):
         return {
@@ -63,6 +65,10 @@ class Label(Base):
     is_private = BooleanField(default=False)
 
     def __str__(self):
+        return f'ID {self.id}: {self.name}'
+
+    @property
+    def full_str(self):
         return f'ID {self.id}: {self.name} - {"приватный" if self.is_private else "публичный"}'
 
     def get_cards(self):

@@ -23,9 +23,11 @@ class LabelInlinesUrls:
 
 
 def get_labels_as_inline(labels: [Label]):
-    inline_dict = {}
+    inline_dict = {
+        'В главное меню': {'callback_data': base_keyboards.BaseMenuUrls.BASE_MENU}
+    }
     for label in labels:
-        inline_dict[label.name] = {
+        inline_dict[str(label)] = {
             'callback_data': f'{LabelInlinesUrls.BASE_MENU}{label.id}'
         }
     return telebot.util.quick_markup(inline_dict, row_width=1)
@@ -62,6 +64,7 @@ def get_yes_no_inline():
     return telebot.util.quick_markup({
         'Да': {'callback_data': f'{LabelInlinesUrls.CREATE_PERMISSION}{"public"}'},
         'Нет': {'callback_data': f'{LabelInlinesUrls.CREATE_PERMISSION}{"private"}'},
+        'Отмена': {'callback_data': base_keyboards.BaseMenuUrls.BASE_MENU}
     }, row_width=2)
 
 

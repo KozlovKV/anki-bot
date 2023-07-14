@@ -1,86 +1,63 @@
 import telebot
-import datetime
 
+from .views import BaseView
 from . import keyboards
-from . import messages
 
 
 def bind_handlers(bot: telebot.TeleBot):
-    # bot.register_message_handler(
-    #     base_log, func=lambda _: True
-    # )
     bot.register_callback_query_handler(
-        edit_to_base_menu,
+        handle_base_menu_query,
         func=lambda call: keyboards.BaseMenuUrls.BASE_MENU in call.data,
         pass_bot=True
     )
     bot.register_callback_query_handler(
-        edit_to_base_menu,
+        handle_base_menu_query,
         func=lambda call: keyboards.BaseMenuUrls.BASE_MENU_NEW in call.data,
         pass_bot=True
     )
     bot.register_message_handler(
-        send_welcome, commands=['start'], pass_bot=True
+        handle_start_command, commands=['start'], pass_bot=True
     )
     bot.register_message_handler(
-        show_menu, commands=['keyboard'], pass_bot=True
+        handle_keyboard_command, commands=['keyboard'], pass_bot=True
     )
     bot.register_message_handler(
-        send_settings_message, commands=['settings'], pass_bot=True
+        handle_settings_command, commands=['settings'], pass_bot=True
     )
     bot.register_message_handler(
-        send_info, commands=['info'], pass_bot=True
+        handle_info_command, commands=['info'], pass_bot=True
     )
     bot.register_message_handler(
-        send_help, commands=['help'], pass_bot=True
+        handle_help_command, commands=['help'], pass_bot=True
     )
     bot.register_message_handler(
-        send_contacts, commands=['contact'], pass_bot=True
+        handle_contacts_command, commands=['contact'], pass_bot=True
     )
 
 
-def send_welcome(message: telebot.types.Message, bot: telebot.TeleBot):
-    bot.send_message(message.chat.id, messages.WELCOME, reply_markup=keyboards.get_base_inline_menu())
+def handle_start_command(message: telebot.types.Message, bot: telebot.TeleBot):
+    BaseView(bot, message=message).send_welcome()
 
 
-def send_settings_message(message: telebot.types.Message, bot: telebot.TeleBot):
-    bot.send_message(message.chat.id, messages.SETTINGS, reply_markup=keyboards.get_base_inline_menu())
+def handle_settings_command(message: telebot.types.Message, bot: telebot.TeleBot):
+    BaseView(bot, message=message).send_settings_message()
 
 
-def disable_inline_and_send_menu(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
-    bot.edit_message_reply_markup(call.message.chat.id, call.message.id)
-    show_menu(call.message, bot)
+def handle_keyboard_command(message: telebot.types.Message, bot: telebot.TeleBot):
+    BaseView(bot, message=message).send_menu()
 
 
-def show_menu(message: telebot.types.Message, bot: telebot.TeleBot):
-    bot.send_message(message.chat.id, messages.MENU, reply_markup=keyboards.get_base_inline_menu())
+def handle_base_menu_query(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+    BaseView(bot, call=call).edit_to_base_menu()
 
 
-def edit_to_base_menu(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
-    bot.edit_message_text(
-        messages.MENU, call.message.chat.id, call.message.id,
-        reply_markup=keyboards.get_base_inline_menu()
-    )
+def handle_info_command(message: telebot.types.Message, bot: telebot.TeleBot):
+    BaseView(bot, message=message).send_info()
 
 
-def send_info(message: telebot.types.Message, bot: telebot.TeleBot):
-    bot.send_message(message.chat.id, messages.INFO_1, parse_mode='MarkdownV2')
-    bot.send_message(message.chat.id, messages.INFO_2, parse_mode='MarkdownV2')
-    bot.send_message(message.chat.id, messages.INFO_3)
-    show_menu(message, bot)
+def handle_help_command(message: telebot.types.Message, bot: telebot.TeleBot):
+    BaseView(bot, message=message).send_help()
 
 
-def send_help(message: telebot.types.Message, bot: telebot.TeleBot):
-    bot.send_message(message.chat.id, messages.HELP_1)
-    bot.send_message(message.chat.id, messages.HELP_2)
-    show_menu(message, bot)
-
-
-def send_contacts(message: telebot.types.Message, bot: telebot.TeleBot):
-    bot.send_message(message.chat.id, messages.CONTACT)
-    show_menu(message, bot)
-
-
-def base_log(message: telebot.types.Message):
-    print(f'{datetime.datetime.now()}: user {message.from_user.id} in chat {message.chat.id} '
-          f'sent {message.text} with type {message.content_type}')
+def handle_contacts_command(message: telebot.types.Message, bot: telebot.TeleBot):
+    BaseView(bot, message=message).send_contacts()
