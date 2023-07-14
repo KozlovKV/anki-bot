@@ -14,13 +14,17 @@ EMPTY_TRAIN_LIST = 'Не найдено карточек для трениров
 
 TRAIN_LIST_END_MESSAGE = 'Вы можете перейти к началу тренировочного списка по этому реплаю'
 
+TRAIN_CANCEL = 'Для отмены нажмите на кнопку под этим сообщением'
+
+TRAIN_ENDS = 'Тренировка окончена'
+
 
 def get_train_list_start_message(count: int):
     return f'Найдено карточек для тренировки: {count}'
 
 
 def get_trainable_card_new_message(count, card_text: str):
-    return f'Осталось карточек: {count}\n\nПервая сторона карточки:{card_text}' \
+    return f'Осталось карточек: {count}\n\nПервая сторона карточки:\n{card_text}' \
            f'\n\nНасколько хорошо вы помните эту карточку?'
 
 

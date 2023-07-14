@@ -15,9 +15,9 @@ from . import state
 
 
 def bind_handlers(bot: telebot.TeleBot):
-    bot.register_message_handler(
+    bot.register_callback_query_handler(
         ask_label_id,
-        regexp=base_keyboards.BaseButtonsEnum.TRAIN.value,
+        func=lambda call: base_keyboards.BaseMenuUrls.TRAIN in call.data,
         pass_bot=True
     )
     bot.register_callback_query_handler(
@@ -42,10 +42,15 @@ def bind_handlers(bot: telebot.TeleBot):
     )
 
 
-def ask_label_id(message: telebot.types.Message, bot: telebot.TeleBot):
+def ask_label_id(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+    bot.edit_message_text(
+        messages.TRAIN_CANCEL,
+        call.message.chat.id, call.message.id,
+        reply_markup=base_keyboards.get_send_menu_inline()
+    )
     new_message = utils.send_message_with_force_reply_placeholder(
-        bot, message.chat.id, messages.ASK_LABEL_ID_PLACEHOLDER,
-        messages.ASK_LABEL_ID_MESSAGE, reply_to_message_id=message.id
+        bot, call.message.chat.id, messages.ASK_LABEL_ID_PLACEHOLDER,
+        messages.ASK_LABEL_ID_MESSAGE
     )
     bot.register_for_reply(new_message, handle_label_id_from_message, bot)
 
@@ -77,13 +82,13 @@ def handle_label_id_from_message(message: telebot.types.Message, bot: telebot.Te
     except IndexError:
         bot.send_message(
             message.chat.id, messages.NOT_EXIST_LABEL_ID_MESSAGE,
-            reply_markup=base_keyboards.get_base_markup(), reply_to_message_id=message.id
+            reply_markup=base_keyboards.get_base_inline_menu(), reply_to_message_id=message.id
         )
         return
     if label.is_blocked_for_user(message.from_user.id):
         bot.send_message(
             message.chat.id, messages.BLOCKED_LABEL_MESSAGE,
-            reply_markup=base_keyboards.get_base_markup(), reply_to_message_id=message.id
+            reply_markup=base_keyboards.get_base_inline_menu(), reply_to_message_id=message.id
         )
         return
     label_message = label_handlers.show_label(message.chat.id, bot, label, lambda _: None)
@@ -118,7 +123,7 @@ def start_train(message: telebot.types.Message, bot: telebot.TeleBot, label_id, 
     if length == 0:
         bot.send_message(
             message.chat.id, messages.EMPTY_TRAIN_LIST,
-            reply_to_message_id=message.id, reply_markup=base_keyboards.get_base_markup()
+            reply_to_message_id=message.id, reply_markup=base_keyboards.get_base_inline_menu()
         )
     else:
         bot.set_state(message.from_user.id, state.TrainState.train_list)
@@ -162,3 +167,8 @@ def recalculate_card(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
         length = data['train_list_length']
     if length > 0:
         show_next_trainable_card(call.message.chat.id, call.from_user.id, bot)
+    else:
+        bot.send_message(
+            call.message.chat.id, messages.TRAIN_ENDS,
+            reply_markup=base_keyboards.get_base_inline_menu()
+        )

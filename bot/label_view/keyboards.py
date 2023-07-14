@@ -2,6 +2,8 @@ import telebot
 
 from bot.base_view import keyboards as base_keyboards
 
+from core.models import Label
+
 
 class LabelInlinesUrls:
     BASE_MENU = '/label/base '
@@ -20,10 +22,10 @@ class LabelInlinesUrls:
     EDIT_NAME = '/label/edit/name '
 
 
-def get_labels_as_inline(labels):
+def get_labels_as_inline(labels: [Label]):
     inline_dict = {}
     for label in labels:
-        inline_dict[str(label)] = {
+        inline_dict[label.name] = {
             'callback_data': f'{LabelInlinesUrls.BASE_MENU}{label.id}'
         }
     return telebot.util.quick_markup(inline_dict, row_width=1)

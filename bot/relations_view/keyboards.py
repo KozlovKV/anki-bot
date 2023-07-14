@@ -1,6 +1,9 @@
 import telebot
 
 import bot.card_view.keyboards as card_keyboards
+import bot.label_view.keyboards as label_keyboards
+
+from core.models import Label
 
 
 class RelationInlinesUrls:
@@ -20,8 +23,10 @@ def get_label_switch_inline(label_id):
     })
 
 
-def get_label_copy_inline(from_label_id: int, labels):
-    inline_dict = {}
+def get_label_copy_inline(from_label_id: int, labels: [Label]):
+    inline_dict = {
+        'Отмена': {'callback_data': f'{label_keyboards.LabelInlinesUrls.BASE_MENU}{from_label_id}'}
+    }
     for label in labels:
         if label.id != from_label_id:
             inline_dict[str(label)] = {
@@ -30,13 +35,12 @@ def get_label_copy_inline(from_label_id: int, labels):
     return telebot.util.quick_markup(inline_dict, row_width=1)
 
 
-def get_card_switch_inline(card_id: int, labels):
-    inline_dict = {}
+def get_card_switch_inline(card_id: int, labels: [Label]):
+    inline_dict = {
+        'Назад': {'callback_data': f'{card_keyboards.CardInlinesUrls.BASE_MENU}{card_id}'}
+    }
     for label in labels:
         inline_dict[str(label)] = {
             'callback_data': f'{RelationInlinesUrls.SWITCH_CARD}{card_id} {label.id}'
         }
-    inline_dict['Назад'] = {
-        'callback_data': f'{card_keyboards.CardInlinesUrls.BASE_MENU}{card_id}'
-    }
     return telebot.util.quick_markup(inline_dict, row_width=1)

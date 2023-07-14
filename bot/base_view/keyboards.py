@@ -3,6 +3,7 @@ import telebot
 
 class BaseMenuUrls:
     BASE_MENU = '/menu '
+    BASE_MENU_NEW = '/menu/new '
 
     CREATE_CARD = '/card/create '
     CREATE_LABEL = '/label/create '
@@ -19,3 +20,9 @@ def get_base_inline_menu():
         'Мои заголовки': {'callback_data': BaseMenuUrls.USER_LABELS},
         'Тренироваться': {'callback_data': BaseMenuUrls.TRAIN},
     }, row_width=2)
+
+
+def get_send_menu_inline():
+    return telebot.util.quick_markup({
+        'Главное меню': {'callback_data': BaseMenuUrls.BASE_MENU_NEW}
+    })

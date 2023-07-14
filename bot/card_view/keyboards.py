@@ -19,12 +19,15 @@ class CardInlinesUrls:
 
 
 def get_base_card_inline(card_id: int):
-    return telebot.util.quick_markup({
+    inline = telebot.util.quick_markup({
         'Изменить': {'callback_data': f'{CardInlinesUrls.EDIT}{card_id}'},
         'Удалить': {'callback_data': f'{CardInlinesUrls.DELETE}{card_id}'},
-        'Настроить связи': {'callback_data': f'{CardInlinesUrls.RELATION}{card_id}'},
-        'В главное меню': {'callback_data': base_keyboards.BaseMenuUrls.BASE_MENU}
+        'Настроить связи': {'callback_data': f'{CardInlinesUrls.RELATION}{card_id}'}
     }, row_width=2)
+    inline.row(telebot.types.InlineKeyboardButton(
+        'В главное меню', callback_data=base_keyboards.BaseMenuUrls.BASE_MENU
+    ))
+    return inline
 
 
 def get_edit_card_inline(card_id):

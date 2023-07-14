@@ -14,6 +14,11 @@ def bind_handlers(bot: telebot.TeleBot):
         func=lambda call: keyboards.BaseMenuUrls.BASE_MENU in call.data,
         pass_bot=True
     )
+    bot.register_callback_query_handler(
+        edit_to_base_menu,
+        func=lambda call: keyboards.BaseMenuUrls.BASE_MENU_NEW in call.data,
+        pass_bot=True
+    )
     bot.register_message_handler(
         send_welcome, commands=['start'], pass_bot=True
     )
@@ -40,6 +45,11 @@ def send_welcome(message: telebot.types.Message, bot: telebot.TeleBot):
 
 def send_settings_message(message: telebot.types.Message, bot: telebot.TeleBot):
     bot.send_message(message.chat.id, messages.SETTINGS, reply_markup=keyboards.get_base_inline_menu())
+
+
+def disable_inline_and_send_menu(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
+    bot.edit_message_reply_markup(call.message.chat.id, call.message.id)
+    show_menu(call.message, bot)
 
 
 def show_menu(message: telebot.types.Message, bot: telebot.TeleBot):

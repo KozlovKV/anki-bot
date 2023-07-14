@@ -7,8 +7,8 @@ from .config import TOKEN
 from .base_view import handlers as base_view
 from .card_view import handlers as card_view
 from .label_view import handlers as label_view
-# from .relations_view import handlers as relations_view
-# from .train_view import handlers as train_view
+from .relations_view import handlers as relations_view
+from .train_view import handlers as train_view
 
 
 def start():
@@ -17,8 +17,8 @@ def start():
     base_view.bind_handlers(bot)
     card_view.bind_handlers(bot)
     label_view.bind_handlers(bot)
-    # relations_view.bind_handlers(bot)
-    # train_view.bind_handlers(bot)
+    relations_view.bind_handlers(bot)
+    train_view.bind_handlers(bot)
 
     # requests logging
     logging.basicConfig(filename='log/api.log', level=logging.DEBUG,
