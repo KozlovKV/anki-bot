@@ -66,12 +66,12 @@ def handle_second_card_side(message: telebot.types.Message, bot: telebot.TeleBot
 
 
 def handle_user_id(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
-    CardView(bot, call=call).send_user_cards()
+    CardView(bot, call=call).set_user_cards_inline()
 
 
 def handle_base_card_menu_query(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     card_id = int(call.data.split(' ')[1])
-    CardView(bot, call=call).set_base_card_menu_inline(card_id)
+    CardView(bot, call=call).set_card_with_base_inline(card_id)
 
 
 def handle_card_edit_query(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):

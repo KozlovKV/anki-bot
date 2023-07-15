@@ -38,6 +38,11 @@ class Card(Base):
             return True
         return False
 
+    @property
+    def short_str(self):
+        return f'{self.side1[:10]}{"..." if len(self.side1) >= 10 else ""} / ' \
+               f'{self.side2[:10]}{"..." if len(self.side2) >= 10 else ""}'
+
     def str_with_labels(self):
         labels = self.get_labels()
         if len(labels) == 0:

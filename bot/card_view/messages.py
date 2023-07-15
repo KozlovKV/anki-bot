@@ -6,9 +6,13 @@ SECOND_SIDE_MESSAGE = 'Введите вторую сторону карточк
 
 CREATE_CARD_SUCCESS = 'Карточка успешно создана'
 
+CARDS_CHOOSING = 'Выберите карточку из списка'
+
 EMPTY_CARDS_LIST = 'У вас пока нет карточек. Скорее создайте первую!'
 
 EDIT_CARD_SUCCESS = 'Карточка успешно изменена'
+
+DELETE_CARD_SUCCESS = 'Карточка удалена'
 
 
 def get_edit_side_placeholder(side_number):

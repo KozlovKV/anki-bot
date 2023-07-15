@@ -49,6 +49,13 @@ class BaseView(ViewPrototype):
             reply_markup=keyboards.get_base_inline_menu()
         )
 
+    def edit_to_cancel_message(self, message_text=messages.CANCEL):
+        self.bot.edit_message_text(
+            message_text,
+            self.chat_id, self.message_id,
+            reply_markup=keyboards.get_send_menu_inline()
+        )
+
     def send_info(self):
         self.bot.send_message(self.chat_id, messages.INFO_1, parse_mode='MarkdownV2')
         self.bot.send_message(self.chat_id, messages.INFO_2, parse_mode='MarkdownV2')

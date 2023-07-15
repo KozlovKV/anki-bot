@@ -22,6 +22,12 @@ def get_base_inline_menu():
     }, row_width=2)
 
 
+def get_back_menu_inline():
+    return telebot.util.quick_markup({
+        'Главное меню': {'callback_data': BaseMenuUrls.BASE_MENU_NEW}
+    })
+
+
 def get_send_menu_inline():
     return telebot.util.quick_markup({
         'Главное меню': {'callback_data': BaseMenuUrls.BASE_MENU_NEW}

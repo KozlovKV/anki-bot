@@ -14,11 +14,7 @@ from . import state
 
 class TrainView(BaseView):
     def ask_label_id_first_with_canceling_option(self):
-        self.bot.edit_message_text(
-            messages.TRAIN_CANCEL,
-            self.chat_id, self.message_id,
-            reply_markup=base_keyboards.get_send_menu_inline()
-        )
+        self.edit_to_cancel_message()
         return self.ask_label_id()
 
     def ask_label_id(self):

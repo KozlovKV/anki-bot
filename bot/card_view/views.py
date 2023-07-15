@@ -10,7 +10,7 @@ from . import messages
 
 class CardView(BaseView):
     def ask_first_card_side(self):
-        self.bot.delete_message(self.chat_id, self.message_id)
+        self.edit_to_cancel_message()
         return utils.send_message_with_force_reply_placeholder(
             self.bot, self.chat_id, messages.FIRST_SIDE_PLACEHOLDER,
             messages.FIRST_SIDE_MESSAGE
@@ -35,10 +35,12 @@ class CardView(BaseView):
             reply_markup=markup_function(card.id)
         )
 
-    def set_base_card_menu_inline(self, card_id: int):
-        self.bot.edit_message_reply_markup(
+    def set_card_with_base_inline(self, card_id: int):
+        card = anki_engine.utils.user_protected_read(anki_engine.Card, self.user_id, card_id)
+        self.bot.edit_message_text(
+            card.str_with_labels(),
             self.chat_id, self.message_id,
-            reply_markup=keyboards.get_base_card_inline(card_id)
+            reply_markup=keyboards.get_base_card_inline(card.id)
         )
 
     def send_user_cards(self, markup_function=keyboards.get_base_card_inline):
@@ -48,6 +50,18 @@ class CardView(BaseView):
         if len(cards) == 0:
             self.bot.send_message(self.chat_id, messages.EMPTY_CARDS_LIST)
 
+    def set_user_cards_inline(self):
+        cards = anki_engine.get_user_cards(self.user_id)
+        if len(cards) == 0:
+            self.edit_to_base_menu(messages.EMPTY_CARDS_LIST)
+            return
+        inline = keyboards.get_cards_choose_inline(cards)
+        self.bot.edit_message_text(
+            messages.CARDS_CHOOSING,
+            self.chat_id, self.message_id,
+            reply_markup=inline
+        )
+
     def set_edit_side_inline(self, card_id: int):
         self.bot.edit_message_reply_markup(
             self.chat_id, self.message_id,
@@ -55,7 +69,7 @@ class CardView(BaseView):
         )
 
     def ask_new_side_text(self, side_number: int):
-        self.bot.delete_message(self.chat_id, self.message_id)
+        self.edit_to_cancel_message()
         return utils.send_message_with_force_reply_placeholder(
             self.bot, self.chat_id, messages.get_edit_side_placeholder(side_number),
             messages.get_edit_side_message(side_number)
@@ -77,8 +91,7 @@ class CardView(BaseView):
         )
 
     def delete_card(self, card_id):
-        self.bot.delete_message(self.chat_id, self.message_id)
         anki_engine.card_controls.delete(self.user_id, card_id)
-        self.send_menu()
+        self.edit_to_base_menu(messages.DELETE_CARD_SUCCESS)
 
 

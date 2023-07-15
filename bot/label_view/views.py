@@ -16,7 +16,7 @@ class LabelView(BaseView):
         )
 
     def ask_label_name(self, is_private: bool):
-        self.bot.delete_message(self.chat_id, self.message_id)
+        self.edit_to_cancel_message()
         message_dict = messages.get_label_name_message_dict(is_private)
         return utils.send_message_with_force_reply_placeholder(
             self.bot, self.chat_id, message_dict['placeholder'],
@@ -63,7 +63,7 @@ class LabelView(BaseView):
         )
 
     def ask_new_label_name(self):
-        self.bot.delete_message(self.chat_id, self.message_id)
+        self.edit_to_cancel_message()
         return utils.send_message_with_force_reply_placeholder(
             self.bot, self.chat_id, messages.EDIT_LABEL_NAME_PLACEHOLDER,
             messages.EDIT_LABEL_NAME_MESSAGE
