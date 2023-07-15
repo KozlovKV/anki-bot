@@ -24,7 +24,7 @@ def get_base_inline_menu():
 
 def get_back_menu_inline():
     return telebot.util.quick_markup({
-        'Главное меню': {'callback_data': BaseMenuUrls.BASE_MENU_NEW}
+        'Главное меню': {'callback_data': BaseMenuUrls.BASE_MENU}
     })
 
 

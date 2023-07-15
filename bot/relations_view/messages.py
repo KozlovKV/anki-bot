@@ -9,3 +9,5 @@ def get_copy_relations_success(from_label: str, to_label: str):
 COPY_RELATIONS_START_MESSAGE = 'Выберите заголовок, которому хотите скопировать связи'
 
 CARD_LIST_START_MESSAGE = 'Начало списка карточек'
+
+CARDS_INLINE_SWITCHING = 'Нажимайте на соответствующие карточкам кнопки для настройки связей'

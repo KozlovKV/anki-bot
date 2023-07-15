@@ -20,16 +20,18 @@ class CardInlinesUrls:
     EDIT_SIDE = '/card/edit/'
 
 
-def get_card_menu_button(text: str, card_id: int):
-    return telebot.types.InlineKeyboardButton(text, callback_data=f'{CardInlinesUrls.BASE_MENU}{card_id}')
+def get_card_menu_button(card: Card):
+    return telebot.types.InlineKeyboardButton(
+        card.short_str, callback_data=f'{CardInlinesUrls.BASE_MENU}{card.id}'
+    )
 
-
-def get_cards_choose_inline(cards: [Card], button_function=get_card_menu_button):
-    inline = telebot.util.quick_markup({
-        'В главное меню': {'callback_data': base_keyboards.BaseMenuUrls.BASE_MENU}
-    }, row_width=1)
+def get_cards_choose_inline(
+        cards: [Card], back_btn_inline=base_keyboards.get_back_menu_inline(),
+        card_btn_function=get_card_menu_button
+):
+    inline = back_btn_inline
     for card in cards:
-        inline.row(button_function(card.short_str, card.id))
+        inline.row(card_btn_function(card))
     return inline
 
 

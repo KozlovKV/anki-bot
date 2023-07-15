@@ -12,30 +12,20 @@ from . import messages
 
 
 class RelationView(BaseView):
-    def send_cards_for_chaining_to_label(self, label_id: int):
+    def set_label_cards_inline_for_chaining(self, label_id: int):
         label = anki_engine.utils.user_protected_read(
             anki_engine.Label, self.user_id, label_id
         )
-        start_message = self.bot.edit_message_text(
-            messages.CARD_LIST_START_MESSAGE,
-            self.chat_id, self.message_id
-        )
-        CardView(self.bot, other_instance=self).send_user_cards(
-            keyboards.get_label_switch_inline(label_id)
-        )
-        self.bot.send_message(
-            self.chat_id, messages.get_card_list_end_message(str(label)),
-            reply_to_message_id=start_message.id,
-            reply_markup=label_keyboards.get_base_label_inline(label.id)
+        cards = anki_engine.get_user_cards(self.user_id)
+        self.bot.edit_message_text(
+            messages.CARDS_INLINE_SWITCHING,
+            self.chat_id, self.message_id,
+            reply_markup=keyboards.get_label_to_cards_switch_inline(label, cards)
         )
 
     def switch_label_card_relation(self, label_id: int, card_id: int):
         anki_engine.relation_controls.switch_relation(self.user_id, card_id, label_id)
-        card = anki_engine.utils.user_protected_read(anki_engine.Card, self.user_id, card_id)
-        self.bot.edit_message_text(
-            card.str_with_labels(), self.chat_id, self.message_id,
-            reply_markup=keyboards.get_label_switch_inline(label_id)(card_id)
-        )
+        self.set_label_cards_inline_for_chaining(label_id)
 
     def set_card_labels_inline_for_chaining(self, card_id: int):
         card = anki_engine.utils.user_protected_read(anki_engine.Card, self.user_id, card_id)

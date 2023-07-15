@@ -42,7 +42,7 @@ def bind_handlers(bot: telebot.TeleBot):
 
 def handle_label_to_cards_relations_editing_query(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     label_id = int(call.data.split(' ')[1])
-    RelationView(bot, call=call).send_cards_for_chaining_to_label(label_id)
+    RelationView(bot, call=call).set_label_cards_inline_for_chaining(label_id)
 
 
 def handle_switch_label_card_query(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):

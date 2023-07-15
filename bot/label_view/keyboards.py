@@ -22,6 +22,12 @@ class LabelInlinesUrls:
     EDIT_NAME = '/label/edit/name '
 
 
+def get_label_back_inline(label_id: int):
+    return telebot.util.quick_markup({
+        'Назад': {'callback_data': f'{LabelInlinesUrls.BASE_MENU}{label_id}'}
+    })
+
+
 def get_labels_as_inline(labels: [Label]):
     inline_dict = {
         'В главное меню': {'callback_data': base_keyboards.BaseMenuUrls.BASE_MENU}

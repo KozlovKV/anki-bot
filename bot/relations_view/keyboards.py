@@ -3,7 +3,7 @@ import telebot
 import bot.card_view.keyboards as card_keyboards
 import bot.label_view.keyboards as label_keyboards
 
-from core.models import Label
+from core.models import Label, Card
 
 
 class RelationInlinesUrls:
@@ -21,6 +21,20 @@ def get_label_switch_inline(label_id):
     return lambda card_id: telebot.util.quick_markup({
         'Связать / отвязать': {'callback_data': f'{RelationInlinesUrls.SWITCH_LABEL}{label_id} {card_id}'}
     })
+
+
+def get_label_card_switch_inline_btn(label: Label):
+    return lambda card: telebot.types.InlineKeyboardButton(
+        f'{card.short_str} - {"Привязана" if card.is_related(label) else "Не привязана"}',
+        callback_data=f'{RelationInlinesUrls.SWITCH_LABEL}{label.id} {card.id}'
+    )
+
+
+def get_label_to_cards_switch_inline(label: Label, cards: [Card]):
+    return card_keyboards.get_cards_choose_inline(
+        cards, label_keyboards.get_label_back_inline(label.id),
+        get_label_card_switch_inline_btn(label)
+    )
 
 
 def get_label_copy_inline(from_label_id: int, labels: [Label]):
