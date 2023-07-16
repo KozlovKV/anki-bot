@@ -11,29 +11,39 @@ from . import messages
 class CardView(BaseView):
     def ask_first_card_side(self):
         self.edit_to_cancel_message()
-        return utils.send_message_with_force_reply_placeholder(
+        new_message = utils.send_message_with_force_reply_placeholder(
             self.bot, self.chat_id, messages.FIRST_SIDE_PLACEHOLDER,
             messages.FIRST_SIDE_MESSAGE
         )
+        self.add_temp_message_id(new_message.id)
+        return new_message
 
     def ask_second_card_side(self):
-        return utils.send_message_with_force_reply_placeholder(
+        self.add_temp_message_id(self.message_id)
+        new_message = utils.send_message_with_force_reply_placeholder(
             self.bot, self.chat_id, messages.SECOND_SIDE_PLACEHOLDER,
             messages.SECOND_SIDE_MESSAGE
         )
+        self.add_temp_message_id(new_message.id)
+        return new_message
 
     def create_card(self, side1: str, side2: str):
+        self.add_temp_message_id(self.message_id)
         card = anki_engine.card_controls.create(self.user_id, side1, side2)
+        self.delete_temp_messages()
         self.send_card(card)
 
     def send_card(
             self, card: anki_engine.Card,
             markup_function=keyboards.get_base_card_inline
     ):
-        self.bot.send_message(
-            self.chat_id, card.str_with_labels(),
-            reply_markup=markup_function(card.id)
+        self.update_current_menu(
+            self.bot.send_message(
+                self.chat_id, card.str_with_labels(),
+                reply_markup=markup_function(card.id)
+            ).id
         )
+
 
     def set_card_with_base_inline(self, card_id: int):
         card = anki_engine.utils.user_protected_read(anki_engine.Card, self.user_id, card_id)
