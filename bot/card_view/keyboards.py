@@ -25,11 +25,14 @@ def get_card_menu_button(card: Card):
         card.short_str, callback_data=f'{CardInlinesUrls.BASE_MENU}{card.id}'
     )
 
+
 def get_cards_choose_inline(
-        cards: [Card], back_btn_inline=base_keyboards.get_back_menu_inline(),
+        cards: [Card], back_btn_inline=None,
         card_btn_function=get_card_menu_button
 ):
-    inline = back_btn_inline
+    inline = base_keyboards.get_back_menu_inline()
+    if back_btn_inline is not None:
+        inline = back_btn_inline()
     for card in cards:
         inline.row(card_btn_function(card))
     return inline
