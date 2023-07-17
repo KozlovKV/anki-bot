@@ -92,7 +92,7 @@ def handle_switch_label_permission_query(call: telebot.types.CallbackQuery, bot:
 def handle_edit_label_name_query(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     label_id = int(call.data.split(' ')[1])
     bot.register_for_reply(
-        LabelView(bot, call=call).ask_new_label_name(),
+        LabelView(bot, call=call).ask_new_label_name(label_id),
         handle_edit_label_name_reply, bot, label_id
     )
 

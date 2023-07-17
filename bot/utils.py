@@ -29,11 +29,15 @@ def send_message_with_force_reply_placeholder(
     )
 
 
-def edit_message_with_force_reply_placeholder(
-        bot: telebot.TeleBot, chat_id: int, message_id: int,
-        placeholder_text: str, new_message_text: str, **kwargs
-) -> telebot.types.Message:
+def get_kwargs_for_message_with_force_reply_placeholder(
+        chat_id: int, placeholder_text: str, new_message_text: str,
+        reply_to_message_id: Optional[int] = None, **kwargs
+):
     placeholder = telebot.types.ForceReply(input_field_placeholder=placeholder_text)
-    return bot.edit_message_text(
-        new_message_text, chat_id, message_id, reply_markup=placeholder, **kwargs
-    )
+    return {
+        'chat_id': chat_id,
+        'text': new_message_text,
+        'reply_markup': placeholder,
+        'reply_to_message_id': reply_to_message_id,
+        **kwargs
+    }

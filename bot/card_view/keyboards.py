@@ -26,6 +26,12 @@ def get_card_menu_button(card: Card):
     )
 
 
+def get_card_back_inline(card_id):
+    return telebot.util.quick_markup({
+        'Вернуться в меню карточки': {'callback_data': f'{CardInlinesUrls.BASE_MENU}{card_id}'},
+    }, row_width=1)
+
+
 def get_cards_choose_inline(
         cards: [Card], back_btn_inline=None,
         card_btn_function=get_card_menu_button

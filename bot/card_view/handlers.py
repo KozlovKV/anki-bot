@@ -84,7 +84,7 @@ def handle_edit_side_number_query(call: telebot.types.CallbackQuery, bot: telebo
     side_number = int(data[0].split('/')[-1])
     card_id = int(data[1])
     bot.register_for_reply(
-        CardView(bot, call=call).ask_new_side_text(side_number),
+        CardView(bot, call=call).ask_new_side_text(card_id, side_number),
         handle_new_side_text_reply, bot, side_number, card_id
     )
 

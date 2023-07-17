@@ -1,17 +1,15 @@
 from core import anki_engine
 
 
-from bot.base_view.views import BaseView
-from bot.card_view.views import CardView
+from bot.base_view.views import ViewPrototype
 
 import bot.base_view.keyboards as base_keyboards
-import bot.label_view.keyboards as label_keyboards
 
 from . import keyboards
 from . import messages
 
 
-class RelationView(BaseView):
+class RelationView(ViewPrototype):
     def set_label_cards_inline_for_chaining(self, label_id: int):
         label = anki_engine.utils.user_protected_read(
             anki_engine.Label, self.user_id, label_id

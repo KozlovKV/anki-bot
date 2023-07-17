@@ -53,7 +53,7 @@ def handle_train_query(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
 def handle_label_id_query(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):
     label_id = int(call.data.split(' ')[1])
     bot.register_for_reply(
-        TrainView(bot, call=call).ask_count(),
+        TrainView(bot, call=call).ask_count_with_canceling_option(label_id),
         handle_count_reply, bot, label_id
     )
 
@@ -81,7 +81,7 @@ def handle_count_reply(message: telebot.types.Message, bot: telebot.TeleBot, lab
     if count is None:
         bot.register_for_reply(
             view.send_nan_message(view.ask_count),
-            handle_label_id_reply, bot
+            handle_count_reply, bot, label_id
         )
         return
     view.start_train(label_id, count)

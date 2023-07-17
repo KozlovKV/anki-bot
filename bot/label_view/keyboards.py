@@ -24,7 +24,7 @@ class LabelInlinesUrls:
 
 def get_label_back_inline(label_id: int):
     return telebot.util.quick_markup({
-        'Назад': {'callback_data': f'{LabelInlinesUrls.BASE_MENU}{label_id}'}
+        'Вернуться в меню заголовка': {'callback_data': f'{LabelInlinesUrls.BASE_MENU}{label_id}'}
     })
 
 

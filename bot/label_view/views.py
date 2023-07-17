@@ -1,14 +1,14 @@
+import telebot
+
 from core import anki_engine
 
-from bot import utils
-
-from bot.base_view.views import BaseView
+from bot.base_view.views import ViewPrototype
 
 from . import keyboards
 from . import messages
 
 
-class LabelView(BaseView):
+class LabelView(ViewPrototype):
     def ask_private_flag(self):
         self.bot.edit_message_text(
             messages.IS_PUBLIC_MESSAGE, self.chat_id, self.message_id,
@@ -18,13 +18,13 @@ class LabelView(BaseView):
     def ask_label_name(self, is_private: bool):
         self.edit_to_cancel_message()
         message_dict = messages.get_label_name_message_dict(is_private)
-        return utils.send_message_with_force_reply_placeholder(
-            self.bot, self.chat_id, message_dict['placeholder'],
-            message_dict['message']
-        )
+        placeholder = telebot.types.ForceReply(input_field_placeholder=message_dict['placeholder'])
+        return self.send_temp_message(message_dict['message'], reply_markup=placeholder)
 
     def create_label(self, is_private: bool, label_name: str):
+        self.add_temp_message_id(self.message_id)
         label = anki_engine.label_controls.create(self.user_id, label_name, is_private)
+        self.delete_temp_messages()
         self.send_label(label)
 
     def show_user_labels(self):
@@ -37,6 +37,7 @@ class LabelView(BaseView):
         )
 
     def set_base_label_inline(self, label_id: int):
+        self.delete_temp_messages()
         label = anki_engine.utils.empty_protected_read(anki_engine.Label, label_id)
         self.bot.edit_message_text(
             label.full_str, self.chat_id, self.message_id,
@@ -44,10 +45,12 @@ class LabelView(BaseView):
         )
 
     def send_label(self, label: anki_engine.Label, markup_function=keyboards.get_base_label_inline):
-        return self.bot.send_message(
+        label_message = self.bot.send_message(
             self.chat_id, label.full_str,
             reply_markup=markup_function(label.id)
         )
+        self.update_current_menu(label_message.id)
+        return label_message
 
     def set_edit_label_inline(self, label_id: int):
         self.bot.edit_message_reply_markup(
@@ -62,16 +65,18 @@ class LabelView(BaseView):
             reply_markup=keyboards.get_base_label_inline(label_id)
         )
 
-    def ask_new_label_name(self):
-        self.edit_to_cancel_message()
-        return utils.send_message_with_force_reply_placeholder(
-            self.bot, self.chat_id, messages.EDIT_LABEL_NAME_PLACEHOLDER,
-            messages.EDIT_LABEL_NAME_MESSAGE
+    def ask_new_label_name(self, label_id: int):
+        self.bot.edit_message_reply_markup(
+            self.chat_id, self.message_id, reply_markup=keyboards.get_label_back_inline(label_id)
         )
+        placeholder = telebot.types.ForceReply(input_field_placeholder=messages.EDIT_LABEL_NAME_PLACEHOLDER)
+        return self.send_temp_message(messages.EDIT_LABEL_NAME_MESSAGE, reply_markup=placeholder)
 
     def edit_label_name(self, label_id, new_label_name: str):
+        self.add_temp_message_id(self.message_id)
         label = anki_engine.label_controls.update(self.user_id, label_id, new_label_name)
         label.save()
+        self.delete_temp_messages()
         self.send_label(label)
 
     def ask_label_deletion_proof(self, label_id: int):

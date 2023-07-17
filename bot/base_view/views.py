@@ -38,8 +38,9 @@ class ViewPrototype:
 
     def update_current_menu(self, new_menu_id):
         with self.bot.retrieve_data(self.user_id) as data:
-            self.bot.delete_message(self.chat_id, data['current_menu_id'])
-            data['current_menu_id'] = new_menu_id
+            if data['current_menu_id'] != new_menu_id:
+                self.bot.delete_message(self.chat_id, data['current_menu_id'])
+                data['current_menu_id'] = new_menu_id
 
     def add_temp_message_id(self, message_id):
         with self.bot.retrieve_data(self.user_id) as data:
@@ -51,6 +52,41 @@ class ViewPrototype:
                 self.bot.delete_message(self.chat_id, message_id)
             data['temp_list'] = []
 
+    def send_menu(self, message_text=messages.MENU):
+        self.delete_temp_messages()
+        new_menu = self.bot.send_message(
+            self.chat_id, message_text,
+            reply_markup=keyboards.get_base_inline_menu()
+        )
+        self.update_current_menu(new_menu.id)
+        return new_menu
+
+    def edit_to_base_menu(self, message_text=messages.MENU):
+        self.delete_temp_messages()
+        return self.bot.edit_message_text(
+            message_text, self.chat_id, self.message_id,
+            reply_markup=keyboards.get_base_inline_menu()
+        )
+
+    def send_cancel_message(self, message_text=messages.CANCEL):
+        cancel_message = self.bot.send_message(
+            self.chat_id, message_text,
+            reply_markup=keyboards.get_send_menu_inline()
+        )
+        self.update_current_menu(cancel_message.id)
+        return cancel_message
+
+    def edit_to_cancel_message(self, message_text=messages.CANCEL):
+        return self.bot.edit_message_text(
+            message_text, self.chat_id, self.message_id,
+            reply_markup=keyboards.get_send_menu_inline()
+        )
+
+    def send_temp_message(self, message_text, **kwargs):
+        message = self.bot.send_message(self.chat_id, message_text, **kwargs)
+        self.add_temp_message_id(message.id)
+        return message
+
 
 class BaseView(ViewPrototype):
     def send_welcome(self):
@@ -61,44 +97,28 @@ class BaseView(ViewPrototype):
             ).id
         )
 
+    def send_keyboard_from_command(self):
+        self.add_temp_message_id(self.message_id)
+        self.send_menu(messages.SETTINGS)
+
     def send_settings_message(self):
-        self.bot.send_message(self.chat_id, messages.SETTINGS, reply_markup=keyboards.get_base_inline_menu())
-
-    def send_menu(self):
-        self.delete_temp_messages()
-        self.update_current_menu(
-            self.bot.send_message(self.chat_id, messages.MENU, reply_markup=keyboards.get_base_inline_menu()).id
-        )
-
-    def disable_inline_and_send_menu(self):
-        self.bot.edit_message_reply_markup(self.chat_id, self.message_id)
-        self.send_menu()
-
-    def edit_to_base_menu(self, message_text=messages.MENU):
-        self.delete_temp_messages()
-        self.bot.edit_message_text(
-            message_text, self.chat_id, self.message_id,
-            reply_markup=keyboards.get_base_inline_menu()
-        )
-
-    def edit_to_cancel_message(self, message_text=messages.CANCEL):
-        self.bot.edit_message_text(
-            message_text,
-            self.chat_id, self.message_id,
-            reply_markup=keyboards.get_send_menu_inline()
-        )
+        self.add_temp_message_id(self.message_id)
+        self.send_menu(messages.SETTINGS)
 
     def send_info(self):
-        self.bot.send_message(self.chat_id, messages.INFO_1, parse_mode='MarkdownV2')
-        self.bot.send_message(self.chat_id, messages.INFO_2, parse_mode='MarkdownV2')
-        self.bot.send_message(self.chat_id, messages.INFO_3)
-        self.send_menu()
+        self.add_temp_message_id(self.message_id)
+        self.send_temp_message(messages.INFO_1, parse_mode='MarkdownV2')
+        self.send_temp_message(messages.INFO_2, parse_mode='MarkdownV2')
+        self.send_temp_message(messages.INFO_3)
+        self.send_cancel_message(messages.RETURN)
 
     def send_help(self):
-        self.bot.send_message(self.chat_id, messages.HELP_1)
-        self.bot.send_message(self.chat_id, messages.HELP_2)
-        self.send_menu()
+        self.add_temp_message_id(self.message_id)
+        self.send_temp_message(messages.HELP_1)
+        self.send_temp_message(messages.HELP_2)
+        self.send_cancel_message(messages.RETURN)
 
     def send_contacts(self):
-        self.bot.send_message(self.chat_id, messages.CONTACT)
-        self.send_menu()
+        self.add_temp_message_id(self.message_id)
+        self.send_temp_message(messages.CONTACT)
+        self.send_cancel_message(messages.RETURN)
