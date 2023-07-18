@@ -2,6 +2,8 @@ from typing import Optional
 
 import telebot
 
+from core.models import DB
+
 from . import keyboards
 from . import messages
 from . import state
@@ -14,6 +16,7 @@ class ViewPrototype:
             call: Optional[telebot.types.CallbackQuery] = None,
             other_instance=None
     ):
+        DB.connect(True)
         self.bot = bot
         self.temp_storage = {}
         if message:
@@ -28,6 +31,9 @@ class ViewPrototype:
             self.chat_id = other_instance.chat_id
             self.message_id = other_instance.message_id
             self.user_id = other_instance.user_id
+
+    def __del__(self):
+        DB.close()
 
     def init_states(self, first_menu_id):
         self.bot.set_state(self.user_id, state.BaseState.current_menu_id)

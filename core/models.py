@@ -7,7 +7,7 @@ from . import config
 if '--sqlite' in sys.argv:
     DB = SqliteDatabase('./database.db')
 else:
-    DB = MySQLDatabase(**config.MYSQL_CONFIG)
+    DB = MySQLDatabase(**config.MYSQL_CONFIG, )
 
 
 class Base(Model):
