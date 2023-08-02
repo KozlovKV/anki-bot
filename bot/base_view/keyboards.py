@@ -32,3 +32,11 @@ def get_send_menu_inline(inline_text='Главное меню'):
     return telebot.util.quick_markup({
         inline_text: {'callback_data': BaseMenuUrls.BASE_MENU_NEW}
     })
+
+
+def get_back_menu_button(inline_text='Главное меню'):
+    return telebot.types.InlineKeyboardButton(inline_text, callback_data=BaseMenuUrls.BASE_MENU)
+
+
+def get_send_menu_button(inline_text='Главное меню'):
+    return telebot.types.InlineKeyboardButton(inline_text, callback_data=BaseMenuUrls.BASE_MENU_NEW)

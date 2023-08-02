@@ -2,17 +2,11 @@ import telebot
 
 from bot import utils
 
-import bot.label_view.handlers as label_handlers
-
 import bot.base_view.keyboards as base_keyboards
 import bot.label_view.keyboards as label_keyboards
 
-from core import anki_engine
-
 from .views import TrainView
 from . import keyboards
-from . import messages
-from . import state
 
 
 def bind_handlers(bot: telebot.TeleBot):
@@ -24,11 +18,6 @@ def bind_handlers(bot: telebot.TeleBot):
     bot.register_callback_query_handler(
         handle_label_id_query,
         func=lambda call: label_keyboards.LabelInlinesUrls.TRAIN in call.data,
-        pass_bot=True
-    )
-    bot.register_message_handler(
-        start_train_from_command,
-        commands=['train'],
         pass_bot=True
     )
     bot.register_callback_query_handler(
@@ -85,13 +74,6 @@ def handle_count_reply(message: telebot.types.Message, bot: telebot.TeleBot, lab
         )
         return
     view.start_train(label_id, count)
-
-
-def start_train_from_command(message: telebot.types.Message, bot: telebot.TeleBot):
-    args = message.text.strip().split(' ')
-    label_id = int(args[1])
-    count = int(args[2])
-    TrainView(bot, message=message).start_train(label_id, count)
 
 
 def handle_show_second_side_query(call: telebot.types.CallbackQuery, bot: telebot.TeleBot):

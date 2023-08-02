@@ -44,7 +44,7 @@ class TrainView(ViewPrototype):
         self.delete_temp_messages()
         LabelView(self.bot, other_instance=self).send_label(
             label, lambda _: base_keyboards.get_back_menu_inline('Отмена тренировки')
-        )
+        ) # TODO: Выяснить, в чём проблема при обновлении меню
         return self.ask_count()
 
     def ask_count_with_canceling_option(self, label_id: int):
@@ -60,6 +60,7 @@ class TrainView(ViewPrototype):
 
     def start_train(self, label_id, count):
         self.add_temp_message_id(self.message_id)
+        self.delete_temp_messages()
         train_list = anki_engine.get_cards_to_train(self.user_id, label_id, count)
         length = len(train_list)
         if length == 0:
@@ -75,10 +76,11 @@ class TrainView(ViewPrototype):
     def send_next_trainable_card(self):
         with self.bot.retrieve_data(self.user_id) as data:
             card = data['train_list'][0]
-            self.send_temp_message(
+            new_card = self.send_temp_message(
                 messages.get_trainable_card_new_message(data['train_list_length'], str(card.side1)),
                 reply_markup=keyboards.get_show_second_side_markup(card.id),
             )
+            self.update_current_menu(new_card.id)
 
     def edit_to_next_trainable_card(self):
         with self.bot.retrieve_data(self.user_id) as data:
@@ -107,7 +109,4 @@ class TrainView(ViewPrototype):
         if length > 0:
             self.edit_to_next_trainable_card()
         else:
-            self.bot.delete_message(
-                self.chat_id, self.message_id
-            )
-            self.send_menu(messages.TRAIN_ENDS)
+            self.edit_to_base_menu(messages.TRAIN_ENDS)

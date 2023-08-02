@@ -69,10 +69,12 @@ class ViewPrototype:
 
     def edit_to_base_menu(self, message_text=messages.MENU):
         self.delete_temp_messages()
-        return self.bot.edit_message_text(
+        edited_menu = self.bot.edit_message_text(
             message_text, self.chat_id, self.message_id,
             reply_markup=keyboards.get_base_inline_menu()
         )
+        self.update_current_menu(edited_menu.id)
+        return edited_menu
 
     def send_cancel_message(self, message_text=messages.CANCEL):
         cancel_message = self.bot.send_message(
